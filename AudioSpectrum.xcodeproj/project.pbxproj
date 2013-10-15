@@ -18,6 +18,7 @@
 		0FA45980180D750B004004D4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA4595F180D750B004004D4 /* Cocoa.framework */; };
 		0FA45988180D750B004004D4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FA45986180D750B004004D4 /* InfoPlist.strings */; };
 		0FA4598A180D750B004004D4 /* AudioSpectrumTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45989180D750B004004D4 /* AudioSpectrumTests.m */; };
+		0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45994180DEBCF004004D4 /* SpectrumView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,6 +51,8 @@
 		0FA45985180D750B004004D4 /* AudioSpectrumTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AudioSpectrumTests-Info.plist"; sourceTree = "<group>"; };
 		0FA45987180D750B004004D4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		0FA45989180D750B004004D4 /* AudioSpectrumTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSpectrumTests.m; sourceTree = "<group>"; };
+		0FA45993180DEBCF004004D4 /* SpectrumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectrumView.h; sourceTree = "<group>"; };
+		0FA45994180DEBCF004004D4 /* SpectrumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +123,8 @@
 				0FA45974180D750B004004D4 /* MainMenu.xib */,
 				0FA45977180D750B004004D4 /* Images.xcassets */,
 				0FA45966180D750B004004D4 /* Supporting Files */,
+				0FA45993180DEBCF004004D4 /* SpectrumView.h */,
+				0FA45994180DEBCF004004D4 /* SpectrumView.m */,
 			);
 			path = AudioSpectrum;
 			sourceTree = "<group>";
@@ -253,6 +258,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */,
 				0FA45973180D750B004004D4 /* AudioSpectrumAppDelegate.m in Sources */,
 				0FA4596C180D750B004004D4 /* main.m in Sources */,
 			);
