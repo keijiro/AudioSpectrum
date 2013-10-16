@@ -1,46 +1,20 @@
 #import "SpectrumView.h"
 #import <AudioToolbox/AudioToolbox.h>
 
-static AudioQueueRef queue;
-static AudioQueueBufferRef buffers[4];
-
-static float waveform[512];
-
-static void HandleInputBuffer(void *aqData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer, const AudioTimeStamp *inStartTime, UInt32 inNumPackets, const AudioStreamPacketDescription *inPacketDesc)
-{
-    const float *samples = (const float *)inBuffer->mAudioData;
-    for (int i = 0; i < 512 && i < inNumPackets; i++) {
-        waveform[i] = samples[i];
-    }
-    
-    AudioQueueEnqueueBuffer(queue, inBuffer, 0, nil);
-}
-
 @implementation SpectrumView
 
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        AudioStreamBasicDescription inFormat = {0};
-        inFormat.mFormatID = kAudioFormatLinearPCM;
-        inFormat.mSampleRate = 44100;
-        inFormat.mChannelsPerFrame = 1;
-        inFormat.mBitsPerChannel = 32;
-        inFormat.mBytesPerPacket = inFormat.mBytesPerFrame = inFormat.mChannelsPerFrame * sizeof(AudioSampleType);
-        inFormat.mFramesPerPacket = 1;
-        inFormat.mFormatFlags = kAudioFormatFlagsCanonical;
-        
-        AudioQueueNewInput(&inFormat, HandleInputBuffer, nil, nil, kCFRunLoopCommonModes, 0, &queue);
-        
-        for (int i = 0; i < 4; i++) {
-            AudioQueueAllocateBuffer(queue, 1024, &buffers[i]);
-            AudioQueueEnqueueBuffer(queue, buffers[i], 0, nil);
-        }
-        
-        AudioQueueStart(queue, nil);
-        
-        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 100) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+        fftSetup = vDSP_create_fftsetup(8, FFT_RADIX2); 
+        fftBuffer.realp = malloc(256 * sizeof(float));
+        fftBuffer.imagp = malloc(256 * sizeof(float));
+
+        self.audioBuffer = [[AudioInputBuffer alloc] init];
+        [self.audioBuffer start];
+
+        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 20) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
     }
     return self;
 }
@@ -53,18 +27,21 @@ static void HandleInputBuffer(void *aqData, AudioQueueRef inAQ, AudioQueueBuffer
 - (void)drawRect:(NSRect)dirtyRect
 {
 	[super drawRect:dirtyRect];
+
+    float samples[256];
+    NSUInteger sampleCount = [self.audioBuffer copyWaveformTo:samples length:256];
     
     NSSize size = self.frame.size;
-    
     NSBezierPath* path = [NSBezierPath bezierPath];
     [path moveToPoint:NSMakePoint(0, size.height * 0.5f)];
-    for (int i = 0; i < 512; i++) {
-        float x = (float)i * size.width / 512;
-        float y = (waveform[i] + 1.0f) * 0.5f * size.height;
+
+    for (int i = 0; i < sampleCount; i++) {
+        float x = (float)i * size.width / sampleCount;
+        float y = (samples[i] + 1.0f) * 0.5f * size.height;
         [path lineToPoint:NSMakePoint(x, y)];
     }
     
-    [path stroke];
+    if (sampleCount > 0) [path stroke];
 }
 
 @end
