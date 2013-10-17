@@ -1,11 +1,11 @@
+#import <Accelerate/Accelerate.h>
 #import "AudioInputBuffer.h"
 
 #pragma mark Constants
 
-#define kBufferTotal 16
-#define kBufferStay 8
+#define kBufferTotal 32
+#define kBufferStay 16
 #define kBufferLength 256
-#define kBufferByteLength (kBufferLength * sizeof(Float32))
 
 #pragma mark Audio queue callback
 
@@ -40,12 +40,12 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
         // Initialize the buffers.
         for (int i = 0; i < kBufferTotal; i++) {
             AudioQueueBufferRef buffer;
-            AudioQueueAllocateBuffer(audioQueue, kBufferByteLength, &buffer);
+            AudioQueueAllocateBuffer(audioQueue, kBufferLength * sizeof(Float32), &buffer);
             AudioQueueEnqueueBuffer(audioQueue, buffer, 0, NULL);
         }
         
         // Initialize the buffer array.
-        lastBuffers = calloc(sizeof(AudioQueueBufferRef), kBufferStay);
+        lastBuffers = calloc(sizeof(AudioQueueBufferRef), kBufferStay + 1);
     }
     return self;
 }
@@ -74,10 +74,11 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 {
     // Count the buffers already in the array.
     int count = 0;
-    for (; count < kBufferStay && lastBuffers[count] != NULL; count++) {
+    while (lastBuffers[count] != NULL) { // Always stops at the sentinel.
+        count++;
     }
     
-    if (count >= kBufferStay) {
+    if (count == kBufferStay) {
         // Re-enqueue the first buffer and remove it from the array.
         AudioQueueEnqueueBuffer(audioQueue, lastBuffers[0], 0, NULL);
         for (int i = 0; i < count - 1; i++) {
@@ -93,11 +94,16 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
     NSUInteger filled = 0;
-
-    for (int i = 0; filled < length && i < kBufferStay && lastBuffers[i] != NULL; i++) {
-        AudioQueueBufferRef buffer = lastBuffers[i];
+    int bufferIndex = 0;
+    
+    while (filled < length) {
+        // Get the next buffer.
+        AudioQueueBufferRef buffer = lastBuffers[bufferIndex++];
+        if (buffer == NULL) break; // Stops at the sentinel.
+        
         // Determine the length to copy.
         NSUInteger toCopy = MIN(length - filled, buffer->mAudioDataByteSize / sizeof(Float32));
+        
         // Copy!
         memcpy(destination + filled, buffer->mAudioData, toCopy * sizeof(Float32));
         filled += toCopy;
@@ -106,38 +112,49 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
     // Not filled up?
     if (filled < length) {
         // Slide the waveform to the end of the buffer.
-        NSUInteger rest = length - filled;
-        memcpy(destination + rest, destination, filled * sizeof(Float32));
-        memset(destination, 0, rest * sizeof(Float32));
+        NSUInteger offset = length - filled;
+        memcpy(destination + offset, destination, filled * sizeof(Float32));
+        memset(destination, 0, offset * sizeof(Float32));
     }
 }
 
 - (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
 {
+    // Use half number of the length.
+    NSAssert((length & 1) == 0, @"Invalid arguments (totalLength must be even number)");
+    length /= 2;
+    
     NSUInteger filled = 0;
-    
-    for (int i = 0; filled * 2 < length && i < kBufferStay && lastBuffers[i] != NULL; i++) {
-        AudioQueueBufferRef buffer = lastBuffers[i];
-        const Float32 *data = buffer->mAudioData;
-        NSAssert((buffer->mAudioDataByteSize & 1) == 0, @"Invalid data size.");
+    int bufferIndex = 0;
+
+    while (filled < length) {
+        // Get the next buffer.
+        AudioQueueBufferRef buffer = lastBuffers[bufferIndex++];
+        if (buffer == NULL) break; // Always stops at the sentinel.
+        
+        NSAssert((buffer->mAudioDataByteSize & 1) == 0, @"Invalid data size (must be even number)");
+
         // Determine the length to copy.
-        NSUInteger toCopy = MIN(length - filled * 2, buffer->mAudioDataByteSize / sizeof(Float32));
+        NSUInteger toCopy = MIN(length - filled, buffer->mAudioDataByteSize / (2 * sizeof(Float32)));
+
         // Copy!
-        for (int i = 0; i < toCopy; i += 2) {
-            even[filled] = *data++;
-            odd[filled] = *data++;
-            filled++;
-        }
+        DSPSplitComplex tempComplex = { even + filled, odd + filled };
+        vDSP_ctoz((const DSPComplex*)buffer->mAudioData, 2, &tempComplex, 1, toCopy);
+        filled += toCopy;
     }
-    
+
     // Not filled up?
-    if (filled * 2 < length) {
+    if (filled < length) {
         // Slide the waveform to the end of the buffer.
-        NSUInteger rest = (length - filled * 2) / 2;
-        memcpy(even + rest, even, filled * sizeof(Float32));
-        memset(even, 0, rest * sizeof(Float32));
-        memcpy(odd + rest, odd, filled * sizeof(Float32));
-        memset(odd, 0, rest * sizeof(Float32));
+        NSUInteger offset = length - filled;
+        
+        DSPSplitComplex c1 = { even, odd };
+        DSPSplitComplex c2 = { even + offset, odd + offset };
+        
+        vDSP_zvmov(&c1, 1, &c2, 1, filled / 2);
+        
+        vDSP_vclr(c1.realp, 1, offset);
+        vDSP_vclr(c1.imagp, 1, offset);
     }
 }
 
