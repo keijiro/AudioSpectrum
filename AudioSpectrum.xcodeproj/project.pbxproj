@@ -23,6 +23,7 @@
 		0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45994180DEBCF004004D4 /* SpectrumView.m */; };
 		0FA45997180E17D4004004D4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA45996180E17D4004004D4 /* AudioToolbox.framework */; };
 		0FCA261C1810A03A0042AA35 /* WaveformView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FCA261B1810A03A0042AA35 /* WaveformView.m */; };
+		0FCA261F1810A3D20042AA35 /* BandLevelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FCA261E1810A3D20042AA35 /* BandLevelView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +64,8 @@
 		0FA45996180E17D4004004D4 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		0FCA261A1810A03A0042AA35 /* WaveformView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaveformView.h; sourceTree = "<group>"; };
 		0FCA261B1810A03A0042AA35 /* WaveformView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaveformView.m; sourceTree = "<group>"; };
+		0FCA261D1810A3D20042AA35 /* BandLevelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BandLevelView.h; sourceTree = "<group>"; };
+		0FCA261E1810A3D20042AA35 /* BandLevelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BandLevelView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -143,6 +146,8 @@
 				0F073776180E5D9E00130697 /* AudioInputBuffer.m */,
 				0FCA261A1810A03A0042AA35 /* WaveformView.h */,
 				0FCA261B1810A03A0042AA35 /* WaveformView.m */,
+				0FCA261D1810A3D20042AA35 /* BandLevelView.h */,
+				0FCA261E1810A3D20042AA35 /* BandLevelView.m */,
 			);
 			path = AudioSpectrum;
 			sourceTree = "<group>";
@@ -278,6 +283,7 @@
 			files = (
 				0FCA261C1810A03A0042AA35 /* WaveformView.m in Sources */,
 				0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */,
+				0FCA261F1810A3D20042AA35 /* BandLevelView.m in Sources */,
 				0F073777180E5D9E00130697 /* AudioInputBuffer.m in Sources */,
 				0FA45973180D750B004004D4 /* AudioSpectrumAppDelegate.m in Sources */,
 				0FA4596C180D750B004004D4 /* main.m in Sources */,
