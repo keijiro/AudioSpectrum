@@ -6,6 +6,7 @@
 {
     FFTSetup fftSetup;
     DSPSplitComplex fftBuffer;
+    float* window;
 }
 
 @property(strong) AudioInputBuffer *audioBuffer;

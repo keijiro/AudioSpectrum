@@ -11,6 +11,9 @@
         fftBuffer.realp = malloc(512 * sizeof(float));
         fftBuffer.imagp = malloc(512 * sizeof(float));
 
+        window = calloc(1024, sizeof(float));
+        vDSP_blkman_window(window, 1024, 0);
+        
         self.audioBuffer = [[AudioInputBuffer alloc] init];
         [self.audioBuffer start];
 
@@ -29,6 +32,8 @@
 	[super drawRect:dirtyRect];
 
     [self.audioBuffer splitEvenTo:fftBuffer.realp oddTo:fftBuffer.imagp totalLength:1024];
+    vDSP_vmul(fftBuffer.realp, 1, window, 2, fftBuffer.realp, 1, 512);
+    vDSP_vmul(fftBuffer.imagp, 1, window + 1, 2, fftBuffer.imagp, 1, 512);
     vDSP_fft_zrip(fftSetup, &fftBuffer, 1, 10, FFT_FORWARD);
 
     float spectrum[512];
