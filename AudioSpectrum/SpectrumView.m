@@ -28,15 +28,11 @@
 {
 	[super drawRect:dirtyRect];
 
-    float samples[1024];
-    NSUInteger sampleCount = [self.audioBuffer copyWaveformTo:samples length:1024];
-    
-    if (sampleCount != 1024) return;
-    
-    vDSP_ctoz((DSPComplex*)samples, 2, &fftBuffer, 1, 512);
+    [self.audioBuffer splitEvenTo:fftBuffer.realp oddTo:fftBuffer.imagp totalLength:1024];
     
     vDSP_fft_zrip(fftSetup, &fftBuffer, 1, 10, FFT_FORWARD);
-    
+
+    float samples[512];
     for (int i = 0; i < 512; i++) {
         samples[i] = sqrtf(fftBuffer.realp[i] * fftBuffer.realp[i] + fftBuffer.imagp[i] * fftBuffer.imagp[i]);
     }

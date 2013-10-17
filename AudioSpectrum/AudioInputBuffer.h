@@ -10,6 +10,7 @@
 - (void)start;
 - (void)stop;
 - (void)pushBuffer:(AudioQueueBufferRef)buffer;
-- (NSUInteger)copyWaveformTo:(Float32 *)destination length:(NSUInteger)length;
+- (void)copyTo:(Float32 *)destination length:(NSUInteger)length;
+- (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length;
 
 @end
