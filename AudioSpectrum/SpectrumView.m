@@ -17,7 +17,7 @@
         self.audioBuffer = [[AudioInputBuffer alloc] init];
         [self.audioBuffer start];
 
-        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 20) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
+        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
     }
     return self;
 }

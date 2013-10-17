@@ -3,9 +3,9 @@
 
 #pragma mark Constants
 
-#define kBufferTotal 32
-#define kBufferStay 16
-#define kBufferLength 256
+#define kBufferTotal 64
+#define kBufferStay 32
+#define kBufferLength 128
 
 #pragma mark Audio queue callback
 
@@ -23,7 +23,7 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 {
     self = [super init];
     if (self) {
-        // 44.2 kHz single float LPCM
+        // 44.1 kHz single float LPCM
         AudioStreamBasicDescription format = {0};
         format.mFormatID = kAudioFormatLinearPCM;
         format.mSampleRate = 44100;
