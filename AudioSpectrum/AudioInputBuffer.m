@@ -158,4 +158,16 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
     }
 }
 
+#pragma mark Static method
+
++ (id)sharedInstance
+{
+    static AudioInputBuffer *instance;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        instance = [[AudioInputBuffer alloc] init];
+    });
+    return instance;
+}
+
 @end

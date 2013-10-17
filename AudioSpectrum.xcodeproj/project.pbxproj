@@ -22,6 +22,7 @@
 		0FA4598A180D750B004004D4 /* AudioSpectrumTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45989180D750B004004D4 /* AudioSpectrumTests.m */; };
 		0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45994180DEBCF004004D4 /* SpectrumView.m */; };
 		0FA45997180E17D4004004D4 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA45996180E17D4004004D4 /* AudioToolbox.framework */; };
+		0FCA261C1810A03A0042AA35 /* WaveformView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FCA261B1810A03A0042AA35 /* WaveformView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,8 @@
 		0FA45993180DEBCF004004D4 /* SpectrumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectrumView.h; sourceTree = "<group>"; };
 		0FA45994180DEBCF004004D4 /* SpectrumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumView.m; sourceTree = "<group>"; };
 		0FA45996180E17D4004004D4 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		0FCA261A1810A03A0042AA35 /* WaveformView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WaveformView.h; sourceTree = "<group>"; };
+		0FCA261B1810A03A0042AA35 /* WaveformView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WaveformView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +141,8 @@
 				0FA45994180DEBCF004004D4 /* SpectrumView.m */,
 				0F073775180E5D9E00130697 /* AudioInputBuffer.h */,
 				0F073776180E5D9E00130697 /* AudioInputBuffer.m */,
+				0FCA261A1810A03A0042AA35 /* WaveformView.h */,
+				0FCA261B1810A03A0042AA35 /* WaveformView.m */,
 			);
 			path = AudioSpectrum;
 			sourceTree = "<group>";
@@ -271,6 +276,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0FCA261C1810A03A0042AA35 /* WaveformView.m in Sources */,
 				0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */,
 				0F073777180E5D9E00130697 /* AudioInputBuffer.m in Sources */,
 				0FA45973180D750B004004D4 /* AudioSpectrumAppDelegate.m in Sources */,

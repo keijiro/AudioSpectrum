@@ -13,4 +13,6 @@
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length;
 - (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length;
 
++ (id)sharedInstance;
+
 @end
