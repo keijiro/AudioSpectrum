@@ -113,46 +113,156 @@
         <window title="AudioSpectrum" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="266" y="186" width="640" height="473"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1366" height="746"/>
+            <rect key="contentRect" x="266" y="186" width="738" height="473"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="640" height="473"/>
+                <rect key="frame" x="0.0" y="0.0" width="738" height="473"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <splitView dividerStyle="thin" translatesAutoresizingMaskIntoConstraints="NO" id="hBI-8i-RiY">
-                        <rect key="frame" x="20" y="20" width="600" height="433"/>
+                    <splitView dividerStyle="thin" vertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZMk-hP-ClB">
+                        <rect key="frame" x="20" y="20" width="698" height="433"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <subviews>
-                            <customView fixedFrame="YES" id="5ht-Zh-oyP" customClass="BandLevelView">
-                                <rect key="frame" x="0.0" y="0.0" width="600" height="101"/>
+                            <customView id="dMR-0l-q01">
+                                <rect key="frame" x="0.0" y="0.0" width="200" height="433"/>
                                 <autoresizingMask key="autoresizingMask"/>
+                                <subviews>
+                                    <box autoresizesSubviews="NO" title="Configuration" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="G30-3R-WnN">
+                                        <rect key="frame" x="-3" y="284" width="186" height="149"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <view key="contentView">
+                                            <rect key="frame" x="1" y="1" width="184" height="133"/>
+                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                            <subviews>
+                                                <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dnj-oj-JLC">
+                                                    <rect key="frame" x="16" y="20" width="153" height="26"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="f1H-4Y-SAk">
+                                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="menu"/>
+                                                        <menu key="menu" title="OtherViews" id="G8P-jn-6Jt">
+                                                            <items>
+                                                                <menuItem title="4 band" id="ZLJ-Co-AcJ"/>
+                                                                <menuItem title="4 band (visual)" id="YUn-is-fNN"/>
+                                                                <menuItem title="8 band" id="dQ2-xy-tpH"/>
+                                                                <menuItem title="10 band (ISO standard)" state="on" id="Nmc-cs-WsP"/>
+                                                                <menuItem title="24 band" id="RV1-h2-wWQ"/>
+                                                                <menuItem title="31 band (FBQ3012)" id="1aF-3e-rC4"/>
+                                                            </items>
+                                                        </menu>
+                                                    </popUpButtonCell>
+                                                    <connections>
+                                                        <action selector="updateConfiguration:" target="494" id="CL8-n0-jkE"/>
+                                                    </connections>
+                                                </popUpButton>
+                                                <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="N9s-ew-hlW">
+                                                    <rect key="frame" x="16" y="74" width="153" height="26"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="WaD-Qd-4sH">
+                                                        <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                                        <font key="font" metaFont="menu"/>
+                                                        <menu key="menu" title="OtherViews" id="MRb-xn-P97">
+                                                            <items>
+                                                                <menuItem title="512" id="F4J-eM-ioM"/>
+                                                                <menuItem title="1024" id="3tI-Ld-ESN"/>
+                                                                <menuItem title="2048" state="on" id="a8I-B0-I9Q"/>
+                                                                <menuItem title="4096" id="jlz-Hm-nfl"/>
+                                                            </items>
+                                                        </menu>
+                                                    </popUpButtonCell>
+                                                    <connections>
+                                                        <action selector="updateConfiguration:" target="494" id="FEW-TL-y0P"/>
+                                                    </connections>
+                                                </popUpButton>
+                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Xbc-hK-7Kr">
+                                                    <rect key="frame" x="16" y="106" width="101" height="17"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="FFT data points" id="emU-VA-ZeN">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="e2N-U8-fjJ">
+                                                    <rect key="frame" x="16" y="52" width="114" height="17"/>
+                                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Octave band type" id="h7h-pk-sGm">
+                                                        <font key="font" metaFont="system"/>
+                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                    </textFieldCell>
+                                                </textField>
+                                            </subviews>
+                                        </view>
+                                        <constraints>
+                                            <constraint firstItem="e2N-U8-fjJ" firstAttribute="top" secondItem="N9s-ew-hlW" secondAttribute="bottom" constant="8" symbolic="YES" id="1Hy-NS-5Ng"/>
+                                            <constraint firstItem="dnj-oj-JLC" firstAttribute="top" secondItem="N9s-ew-hlW" secondAttribute="bottom" constant="33" id="HTu-QW-D5S"/>
+                                            <constraint firstAttribute="bottom" secondItem="dnj-oj-JLC" secondAttribute="bottom" constant="20" id="QfC-Aj-IDO"/>
+                                            <constraint firstItem="e2N-U8-fjJ" firstAttribute="leading" secondItem="N9s-ew-hlW" secondAttribute="leading" id="WKV-9A-aLQ"/>
+                                            <constraint firstAttribute="trailing" secondItem="N9s-ew-hlW" secondAttribute="trailing" constant="16" id="alJ-6g-hnK"/>
+                                            <constraint firstItem="N9s-ew-hlW" firstAttribute="leading" secondItem="G30-3R-WnN" secondAttribute="leading" constant="16" id="hgb-sk-Ofv"/>
+                                            <constraint firstItem="N9s-ew-hlW" firstAttribute="top" secondItem="G30-3R-WnN" secondAttribute="top" constant="50" id="jR5-Jf-99E"/>
+                                            <constraint firstItem="dnj-oj-JLC" firstAttribute="leading" secondItem="N9s-ew-hlW" secondAttribute="leading" id="lQg-VS-ouP"/>
+                                            <constraint firstItem="Xbc-hK-7Kr" firstAttribute="leading" secondItem="N9s-ew-hlW" secondAttribute="leading" id="mQu-OG-ruf"/>
+                                            <constraint firstItem="N9s-ew-hlW" firstAttribute="top" secondItem="Xbc-hK-7Kr" secondAttribute="bottom" constant="8" symbolic="YES" id="mb3-Ka-VtU"/>
+                                            <constraint firstItem="dnj-oj-JLC" firstAttribute="trailing" secondItem="N9s-ew-hlW" secondAttribute="trailing" id="t8u-gH-HWC"/>
+                                        </constraints>
+                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                    </box>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="G30-3R-WnN" firstAttribute="leading" secondItem="dMR-0l-q01" secondAttribute="leading" id="Kds-EU-QyM"/>
+                                    <constraint firstAttribute="trailing" secondItem="G30-3R-WnN" secondAttribute="trailing" constant="20" symbolic="YES" id="a7K-W9-d3i"/>
+                                    <constraint firstAttribute="width" constant="200" id="kzr-DL-bf7"/>
+                                    <constraint firstItem="G30-3R-WnN" firstAttribute="top" secondItem="dMR-0l-q01" secondAttribute="top" id="uyz-dr-VZs"/>
+                                </constraints>
                             </customView>
-                            <customView fixedFrame="YES" id="YKD-BB-HDW" customClass="SpectrumView">
-                                <rect key="frame" x="0.0" y="102" width="600" height="170"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </customView>
-                            <customView fixedFrame="YES" id="jYO-rx-I0Y" customClass="WaveformView">
-                                <rect key="frame" x="0.0" y="273" width="600" height="160"/>
+                            <splitView fixedFrame="YES" dividerStyle="thin" id="fgb-qt-ce6">
+                                <rect key="frame" x="201" y="0.0" width="497" height="433"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            </customView>
+                                <subviews>
+                                    <customView fixedFrame="YES" id="tke-xZ-Vls" customClass="BandLevelView">
+                                        <rect key="frame" x="0.0" y="0.0" width="497" height="125"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                    </customView>
+                                    <customView fixedFrame="YES" id="Poj-gC-WCM" customClass="SpectrumView">
+                                        <rect key="frame" x="0.0" y="126" width="497" height="157"/>
+                                        <autoresizingMask key="autoresizingMask"/>
+                                    </customView>
+                                    <customView fixedFrame="YES" id="LqI-Is-aHh" customClass="WaveformView">
+                                        <rect key="frame" x="0.0" y="284" width="497" height="149"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    </customView>
+                                </subviews>
+                                <holdingPriorities>
+                                    <real value="250"/>
+                                    <real value="250"/>
+                                    <real value="250"/>
+                                </holdingPriorities>
+                            </splitView>
                         </subviews>
                         <holdingPriorities>
-                            <real value="250"/>
                             <real value="250"/>
                             <real value="250"/>
                         </holdingPriorities>
                     </splitView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="bottom" secondItem="hBI-8i-RiY" secondAttribute="bottom" constant="20" symbolic="YES" id="5zl-wI-V91"/>
-                    <constraint firstAttribute="trailing" secondItem="hBI-8i-RiY" secondAttribute="trailing" constant="20" symbolic="YES" id="UxR-6f-gcW"/>
-                    <constraint firstItem="hBI-8i-RiY" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="crg-iR-lTb"/>
-                    <constraint firstItem="hBI-8i-RiY" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="qD2-uV-zUY"/>
+                    <constraint firstAttribute="bottom" secondItem="ZMk-hP-ClB" secondAttribute="bottom" constant="20" symbolic="YES" id="9Tc-E3-dpO"/>
+                    <constraint firstItem="ZMk-hP-ClB" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="VhX-Rl-hGK"/>
+                    <constraint firstItem="ZMk-hP-ClB" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="el2-dl-xQQ"/>
+                    <constraint firstAttribute="trailing" secondItem="ZMk-hP-ClB" secondAttribute="trailing" constant="20" symbolic="YES" id="rfR-yH-cTW"/>
                 </constraints>
             </view>
         </window>
         <customObject id="494" customClass="AudioSpectrumAppDelegate">
             <connections>
+                <outlet property="bandLevelView" destination="tke-xZ-Vls" id="AYs-ao-0Uk"/>
+                <outlet property="bandTypePopUp" destination="dnj-oj-JLC" id="cXc-0s-GXq"/>
+                <outlet property="fftPointPopUp" destination="N9s-ew-hlW" id="vGF-XD-WfS"/>
+                <outlet property="spectrumView" destination="Poj-gC-WCM" id="dfG-8k-yx4"/>
+                <outlet property="waveformView" destination="LqI-Is-aHh" id="LwF-46-aJ0"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>

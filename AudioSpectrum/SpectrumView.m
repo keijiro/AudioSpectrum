@@ -1,5 +1,5 @@
 #import "SpectrumView.h"
-#import "AudioInputBuffer.h"
+#import "SpectrumAnalyzer.h"
 
 @implementation SpectrumView
 
@@ -7,41 +7,23 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        fftSetup = vDSP_create_fftsetup(12, FFT_RADIX2);
-        fftBuffer.realp = malloc(512 * sizeof(float));
-        fftBuffer.imagp = malloc(512 * sizeof(float));
-
-        window = calloc(1024, sizeof(float));
-        vDSP_blkman_window(window, 1024, 0);
-        
-        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
     }
     return self;
-}
-
-- (void)redraw
-{
-    [self setNeedsDisplay:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect
 {
 	[super drawRect:dirtyRect];
 
-    [[AudioInputBuffer sharedInstance] splitEvenTo:fftBuffer.realp oddTo:fftBuffer.imagp totalLength:1024];
-    vDSP_vmul(fftBuffer.realp, 1, window, 2, fftBuffer.realp, 1, 512);
-    vDSP_vmul(fftBuffer.imagp, 1, window + 1, 2, fftBuffer.imagp, 1, 512);
-    vDSP_fft_zrip(fftSetup, &fftBuffer, 1, 10, FFT_FORWARD);
-
-    float spectrum[512];
-    vDSP_zvmags(&fftBuffer, 1, spectrum, 1, 512);
+    const float *spectrum = [[SpectrumAnalyzer sharedInstance] spectrum];
+    int number = (int)[[SpectrumAnalyzer sharedInstance] pointNumber];
     
     NSSize size = self.frame.size;
     NSBezierPath* path = [NSBezierPath bezierPath];
     [path moveToPoint:NSMakePoint(0, 0)];
 
-    for (int i = 0; i < 512; i += 2) {
-        float x = (float)i * size.width / 512;
+    for (int i = 0; i < number / 2; i += 2) {
+        float x = (float)i * size.width / (number / 2);
         float y = MIN(spectrum[i] * 0.5f, 1.0f) * size.height;
         [path lineToPoint:NSMakePoint(x, y)];
     }

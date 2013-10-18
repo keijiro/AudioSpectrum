@@ -1,5 +1,5 @@
 #import "BandLevelView.h"
-#import "AudioInputBuffer.h"
+#import "SpectrumAnalyzer.h"
 
 @implementation BandLevelView
 
@@ -7,45 +7,27 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        fftSetup = vDSP_create_fftsetup(12, FFT_RADIX2);
-        fftBuffer.realp = malloc(512 * sizeof(float));
-        fftBuffer.imagp = malloc(512 * sizeof(float));
-        
-        window = calloc(1024, sizeof(float));
-        vDSP_blkman_window(window, 1024, 0);
-        
-        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
     }
     return self;
-}
-
-- (void)redraw
-{
-    [self setNeedsDisplay:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect
 {
 	[super drawRect:dirtyRect];
     
-    [[AudioInputBuffer sharedInstance] splitEvenTo:fftBuffer.realp oddTo:fftBuffer.imagp totalLength:1024];
-    vDSP_vmul(fftBuffer.realp, 1, window, 2, fftBuffer.realp, 1, 512);
-    vDSP_vmul(fftBuffer.imagp, 1, window + 1, 2, fftBuffer.imagp, 1, 512);
-    vDSP_fft_zrip(fftSetup, &fftBuffer, 1, 10, FFT_FORWARD);
-    
-    float spectrum[512];
-    vDSP_zvmags(&fftBuffer, 1, spectrum, 1, 512);
+    const float *spectrum = [[SpectrumAnalyzer sharedInstance] spectrum];
+    int number = (int)[[SpectrumAnalyzer sharedInstance] pointNumber];
     
     float middleFreqs[] = { 31.5f, 63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000 };
     float bandWidth = 1.414f;
     
     float levels[10];
     for (int band = 0; band < 10; band++) {
-        int sidxLo = floorf(middleFreqs[band] / bandWidth / 44100 * 2 * 512);
-        int sidxHi = floorf(middleFreqs[band] * bandWidth / 44100 * 2 * 512);
+        int sidxLo = floorf(middleFreqs[band] / bandWidth / 44100 * number);
+        int sidxHi = floorf(middleFreqs[band] * bandWidth / 44100 * number);
         
-        sidxLo = MIN(MAX(sidxLo, 0), 511);
-        sidxHi = MIN(MAX(sidxLo, 0), 511);
+        sidxLo = MIN(MAX(sidxLo, 0), number / 2 - 1);
+        sidxHi = MIN(MAX(sidxLo, 0), number / 2 - 1);
         
         float max = 0.0f;
         for (int i = sidxLo; i <= sidxHi; i++) {

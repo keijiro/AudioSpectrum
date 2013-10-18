@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0F073777180E5D9E00130697 /* AudioInputBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F073776180E5D9E00130697 /* AudioInputBuffer.m */; };
+		0F34CB9518114AF800C01331 /* SpectrumAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0F34CB9418114AF800C01331 /* SpectrumAnalyzer.m */; };
 		0F3574B6180E8E9000836BC3 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F3574B5180E8E9000836BC3 /* Accelerate.framework */; };
 		0FA45960180D750B004004D4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA4595F180D750B004004D4 /* Cocoa.framework */; };
 		0FA4596A180D750B004004D4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FA45968180D750B004004D4 /* InfoPlist.strings */; };
@@ -39,6 +40,8 @@
 /* Begin PBXFileReference section */
 		0F073775180E5D9E00130697 /* AudioInputBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioInputBuffer.h; sourceTree = "<group>"; };
 		0F073776180E5D9E00130697 /* AudioInputBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AudioInputBuffer.m; sourceTree = "<group>"; };
+		0F34CB9318114AF800C01331 /* SpectrumAnalyzer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectrumAnalyzer.h; sourceTree = "<group>"; };
+		0F34CB9418114AF800C01331 /* SpectrumAnalyzer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumAnalyzer.m; sourceTree = "<group>"; };
 		0F3574B5180E8E9000836BC3 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		0FA4595C180D750B004004D4 /* AudioSpectrum.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AudioSpectrum.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA4595F180D750B004004D4 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
@@ -148,6 +151,8 @@
 				0FCA261B1810A03A0042AA35 /* WaveformView.m */,
 				0FCA261D1810A3D20042AA35 /* BandLevelView.h */,
 				0FCA261E1810A3D20042AA35 /* BandLevelView.m */,
+				0F34CB9318114AF800C01331 /* SpectrumAnalyzer.h */,
+				0F34CB9418114AF800C01331 /* SpectrumAnalyzer.m */,
 			);
 			path = AudioSpectrum;
 			sourceTree = "<group>";
@@ -285,6 +290,7 @@
 				0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */,
 				0FCA261F1810A3D20042AA35 /* BandLevelView.m in Sources */,
 				0F073777180E5D9E00130697 /* AudioInputBuffer.m in Sources */,
+				0F34CB9518114AF800C01331 /* SpectrumAnalyzer.m in Sources */,
 				0FA45973180D750B004004D4 /* AudioSpectrumAppDelegate.m in Sources */,
 				0FA4596C180D750B004004D4 /* main.m in Sources */,
 			);

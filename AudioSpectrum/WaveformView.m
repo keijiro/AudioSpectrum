@@ -7,14 +7,8 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
     }
     return self;
-}
-
-- (void)redraw
-{
-    [self setNeedsDisplay:YES];
 }
 
 - (void)drawRect:(NSRect)dirtyRect
