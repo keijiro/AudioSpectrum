@@ -1,8 +1,6 @@
 #import <Accelerate/Accelerate.h>
 #import "AudioInputBuffer.h"
 
-#pragma mark Constants
-
 #define kBufferTotal 64
 #define kBufferStay 32
 #define kBufferLength 128
@@ -14,6 +12,8 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
     AudioInputBuffer* owner = (__bridge AudioInputBuffer *)(inUserData);
     [owner pushBuffer:inBuffer];
 }
+
+#pragma mark
 
 @implementation AudioInputBuffer
 
@@ -160,7 +160,7 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 #pragma mark Static method
 
-+ (id)sharedInstance
++ (AudioInputBuffer *)sharedInstance
 {
     static AudioInputBuffer *instance;
     static dispatch_once_t onceToken;
