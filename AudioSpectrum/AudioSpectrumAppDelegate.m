@@ -25,7 +25,7 @@
 - (IBAction)updateConfiguration:(id)sender
 {
     static const int pointNumbers[] = { 512, 1024, 2048, 4096 };
-    [[SpectrumAnalyzer sharedInstance] characterAtIndex:pointNumbers[self.fftPointPopUp.indexOfSelectedItem]];
+    [[SpectrumAnalyzer sharedInstance] changePointNumber:pointNumbers[self.fftPointPopUp.indexOfSelectedItem]];
 }
 
 @end
