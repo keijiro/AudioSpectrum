@@ -4,22 +4,28 @@
 
 @interface SpectrumAnalyzer : NSObject
 {
-    NSUInteger pointNumber;
-    NSUInteger logPointNumber;
-    FFTSetup fftSetup;
-    DSPSplitComplex fftBuffer;
-    float* window;
-    float* spectrum;
+@private
+    NSUInteger _pointNumber;
+    NSUInteger _logPointNumber;
+    
+    NSUInteger _bandType;
+    
+    FFTSetup _fftSetup;
+    DSPSplitComplex _fftBuffer;
+    Float32 *_window;
+
+    Float32 *_spectrum;
+    Float32 *_bandLevels;
 }
 
-- (id)initWithPointNumber:(NSUInteger)number;
-- (void)changePointNumber:(NSUInteger)number;
-
-- (NSUInteger)pointNumber;
-- (const float*)spectrum;
+@property (nonatomic, assign) NSUInteger pointNumber;
+@property (nonatomic, assign) NSUInteger bandType;
+@property (nonatomic, readonly) NSUInteger bandCount;
+@property (nonatomic, readonly) const Float32 *spectrum;
+@property (nonatomic, readonly) const Float32 *bandLevels;
 
 - (void)calculateWithAudioInputBuffer:(AudioInputBuffer *)buffer;
 
-+ (id)sharedInstance;
++ (SpectrumAnalyzer *)sharedInstance;
 
 @end
