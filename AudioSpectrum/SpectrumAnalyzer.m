@@ -118,7 +118,7 @@ static Float32 bandwidthForBands[] = {
             maxLevel = MAX(maxLevel, _spectra[i]);
         }
         
-        _bandLevels[band] = log10f(maxLevel);
+        _bandLevels[band] = maxLevel;
     }
 }
 
