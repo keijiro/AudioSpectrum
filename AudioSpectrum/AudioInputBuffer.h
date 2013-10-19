@@ -3,6 +3,7 @@
 
 @interface AudioInputBuffer : NSObject
 {
+@private
     AudioQueueRef audioQueue;
     AudioQueueBufferRef *lastBuffers;
 }
