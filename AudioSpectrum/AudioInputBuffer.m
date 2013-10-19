@@ -1,9 +1,18 @@
 #import <Accelerate/Accelerate.h>
 #import "AudioInputBuffer.h"
 
+#pragma mark Configurations
+
+#define kSampleRate 44100
 #define kBufferTotal 64
 #define kBufferStay 32
 #define kBufferLength 128
+
+#pragma mark Private method definition
+
+@interface AudioInputBuffer(PrivateMethod)
+- (void)pushBuffer:(AudioQueueBufferRef)buffer;
+@end
 
 #pragma mark Audio queue callback
 
@@ -17,7 +26,7 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 
 @implementation AudioInputBuffer
 
-#pragma mark Construction and destruction
+#pragma mark Constructor / destructor
 
 - (id)init
 {
@@ -26,7 +35,7 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
         // 44.1 kHz single float LPCM
         AudioStreamBasicDescription format = {0};
         format.mFormatID = kAudioFormatLinearPCM;
-        format.mSampleRate = 44100;
+        format.mSampleRate = kSampleRate;
         format.mChannelsPerFrame = 1;
         format.mBitsPerChannel = 32;
         format.mBytesPerPacket = format.mChannelsPerFrame * sizeof(Float32);
@@ -56,7 +65,14 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
     // The buffers are disposed with the queue.
 }
 
-#pragma mark Start and stop
+#pragma mark Accessor
+
+- (Float32)sampleRate
+{
+    return kSampleRate;
+}
+
+#pragma mark Control methods
 
 - (void)start
 {
@@ -68,28 +84,7 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
     AudioQueueStop(audioQueue, false);
 }
 
-#pragma mark Buffer operations
-
-- (void)pushBuffer:(AudioQueueBufferRef)buffer
-{
-    // Count the buffers already in the array.
-    int count = 0;
-    while (lastBuffers[count] != NULL) { // Always stops at the sentinel.
-        count++;
-    }
-    
-    if (count == kBufferStay) {
-        // Re-enqueue the first buffer and remove it from the array.
-        AudioQueueEnqueueBuffer(audioQueue, lastBuffers[0], 0, NULL);
-        for (int i = 0; i < count - 1; i++) {
-            lastBuffers[i] = lastBuffers[i + 1];
-        }
-        count--;
-    }
-
-    // Append the buffer to the array.
-    lastBuffers[count] = buffer;
-}
+#pragma mark Waveform retrieval methods
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
@@ -156,6 +151,29 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
         vDSP_vclr(c1.realp, 1, offset);
         vDSP_vclr(c1.imagp, 1, offset);
     }
+}
+
+#pragma mark Private method
+
+- (void)pushBuffer:(AudioQueueBufferRef)buffer
+{
+    // Count the buffers already in the array.
+    int count = 0;
+    while (lastBuffers[count] != NULL) { // Always stops at the sentinel.
+        count++;
+    }
+    
+    if (count == kBufferStay) {
+        // Re-enqueue the first buffer and remove it from the array.
+        AudioQueueEnqueueBuffer(audioQueue, lastBuffers[0], 0, NULL);
+        for (int i = 0; i < count - 1; i++) {
+            lastBuffers[i] = lastBuffers[i + 1];
+        }
+        count--;
+    }
+    
+    // Append the buffer to the array.
+    lastBuffers[count] = buffer;
 }
 
 #pragma mark Static method
