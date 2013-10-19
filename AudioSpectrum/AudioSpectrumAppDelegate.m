@@ -18,8 +18,6 @@
 {
     [[SpectrumAnalyzer sharedInstance] calculateWithAudioInputBuffer:[AudioInputBuffer sharedInstance]];
     [self.spectrumView setNeedsDisplay:YES];
-    [self.waveformView setNeedsDisplay:YES];
-    [self.bandLevelView setNeedsDisplay:YES];
 }
 
 - (IBAction)updateConfiguration:(id)sender

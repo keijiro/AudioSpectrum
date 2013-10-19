@@ -119,35 +119,16 @@
                 <rect key="frame" x="0.0" y="0.0" width="738" height="473"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <splitView dividerStyle="thin" translatesAutoresizingMaskIntoConstraints="NO" id="lmj-XH-ew3">
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="n6B-vi-34S" customClass="SpectrumView">
                         <rect key="frame" x="20" y="20" width="698" height="433"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                        <subviews>
-                            <customView fixedFrame="YES" id="tke-xZ-Vls" customClass="BandLevelView">
-                                <rect key="frame" x="0.0" y="0.0" width="698" height="129"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </customView>
-                            <customView fixedFrame="YES" id="Poj-gC-WCM" customClass="SpectrumView">
-                                <rect key="frame" x="0.0" y="130" width="698" height="159"/>
-                                <autoresizingMask key="autoresizingMask"/>
-                            </customView>
-                            <customView fixedFrame="YES" id="LqI-Is-aHh" customClass="WaveformView">
-                                <rect key="frame" x="0.0" y="290" width="698" height="143"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            </customView>
-                        </subviews>
-                        <holdingPriorities>
-                            <real value="250"/>
-                            <real value="250"/>
-                            <real value="250"/>
-                        </holdingPriorities>
-                    </splitView>
+                    </customView>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="lmj-XH-ew3" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="7Hh-eh-PnC"/>
-                    <constraint firstAttribute="trailing" secondItem="lmj-XH-ew3" secondAttribute="trailing" constant="20" symbolic="YES" id="Gra-Q0-dBF"/>
-                    <constraint firstItem="lmj-XH-ew3" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="amo-PZ-1Mx"/>
-                    <constraint firstAttribute="bottom" secondItem="lmj-XH-ew3" secondAttribute="bottom" constant="20" symbolic="YES" id="dz6-UA-NTm"/>
+                    <constraint firstItem="n6B-vi-34S" firstAttribute="top" secondItem="372" secondAttribute="top" constant="20" symbolic="YES" id="IQm-Hi-Swp"/>
+                    <constraint firstAttribute="bottom" secondItem="n6B-vi-34S" secondAttribute="bottom" constant="20" symbolic="YES" id="Ww8-Ed-bsw"/>
+                    <constraint firstAttribute="trailing" secondItem="n6B-vi-34S" secondAttribute="trailing" constant="20" symbolic="YES" id="ZiS-xG-zNa"/>
+                    <constraint firstItem="n6B-vi-34S" firstAttribute="leading" secondItem="372" secondAttribute="leading" constant="20" symbolic="YES" id="vhP-kp-Mvc"/>
                 </constraints>
             </view>
             <toolbar key="toolbar" implicitIdentifier="417A865D-33D7-49B5-BAFE-FAAE8103F4A1" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconAndLabel" sizeMode="regular" id="l0T-Q4-k5f">
@@ -213,11 +194,9 @@
         </window>
         <customObject id="494" customClass="AudioSpectrumAppDelegate">
             <connections>
-                <outlet property="bandLevelView" destination="tke-xZ-Vls" id="AYs-ao-0Uk"/>
                 <outlet property="bandTypePopUp" destination="dnj-oj-JLC" id="cXc-0s-GXq"/>
                 <outlet property="fftPointPopUp" destination="N9s-ew-hlW" id="vGF-XD-WfS"/>
-                <outlet property="spectrumView" destination="Poj-gC-WCM" id="dfG-8k-yx4"/>
-                <outlet property="waveformView" destination="LqI-Is-aHh" id="LwF-46-aJ0"/>
+                <outlet property="spectrumView" destination="n6B-vi-34S" id="bsY-Po-YqY"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>
