@@ -112,7 +112,7 @@ static OSStatus InputRenderProc(void *inRefCon,
         NSUInteger tail = length - _ringBufferOffset;
         DSPSplitComplex destTail = { even, odd };
         DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
-        vDSP_ctoz((const DSPComplex*)(_ringBuffer  + kRingBufferSize - tail), 2, &destTail, 1, tail / 2);
+        vDSP_ctoz((const DSPComplex*)(_ringBuffer + kRingBufferSize - tail), 2, &destTail, 1, tail / 2);
         vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &destHead, 1, _ringBufferOffset / 2);
     }
 }
