@@ -1,3 +1,7 @@
+// Application delegate.
+// by Keijiro Takahashi, 2013
+// https://github.com/keijiro/AudioSpectrum
+
 #import "AudioSpectrumAppDelegate.h"
 #import "AudioInputBuffer.h"
 #import "SpectrumAnalyzer.h"

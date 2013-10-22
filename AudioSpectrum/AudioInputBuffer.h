@@ -1,3 +1,7 @@
+// Provides a low-latency audio input buffer with the system default device.
+// by Keijiro Takahashi, 2013
+// https://github.com/keijiro/AudioSpectrum
+
 #import <Foundation/Foundation.h>
 #import <AudioUnit/AudioUnit.h>
 

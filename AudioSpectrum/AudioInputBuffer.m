@@ -1,3 +1,7 @@
+// Provides a low-latency audio input buffer with the system default device.
+// by Keijiro Takahashi, 2013
+// https://github.com/keijiro/AudioSpectrum
+
 #import "AudioInputBuffer.h"
 #import <Accelerate/Accelerate.h>
 #import <CoreAudio/CoreAudio.h>
@@ -64,6 +68,9 @@ static OSStatus InputRenderProc(void *inRefCon,
 {
     AudioComponentInstanceDispose(_auHAL);
     free(_ringBuffer);
+#if ! __has_feature(objc_arc)
+    [super dealloc];
+#endif
 }
 
 #pragma mark Property accessor
@@ -79,6 +86,7 @@ static OSStatus InputRenderProc(void *inRefCon,
 {
     OSStatus error = AudioOutputUnitStart(_auHAL);
     NSAssert(error == noErr, @"Failed to start the AUHAL (%d).", error);
+    (void)error; // To avoid warning.
 }
 
 - (void)stop

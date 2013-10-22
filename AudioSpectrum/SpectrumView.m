@@ -1,3 +1,7 @@
+// Custom view for displaying a spectrum.
+// by Keijiro Takahashi, 2013
+// https://github.com/keijiro/AudioSpectrum
+
 #import "SpectrumView.h"
 #import "SpectrumAnalyzer.h"
 #import "AudioInputBuffer.h"
