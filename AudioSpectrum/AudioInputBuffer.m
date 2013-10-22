@@ -1,25 +1,34 @@
-#import <Accelerate/Accelerate.h>
 #import "AudioInputBuffer.h"
+#import <Accelerate/Accelerate.h>
+#import <CoreAudio/CoreAudio.h>
 
 #pragma mark Configurations
 
-#define kSampleRate 44100
-#define kBufferTotal 64
-#define kBufferStay 32
-#define kBufferLength 128
+#define kRingBufferSize 4096
+#define kRingBufferByteSize (kRingBufferSize * sizeof(Float32))
 
 #pragma mark Private method definition
 
 @interface AudioInputBuffer(PrivateMethod)
-- (void)pushBuffer:(AudioQueueBufferRef)buffer;
+- (void)initAudioUnit;
+- (void)inputCallback:(AudioUnitRenderActionFlags *)ioActionFlags
+          inTimeStamp:(const AudioTimeStamp *)inTimeStamp
+          inBusNumber:(UInt32)inBusNumber
+        inNumberFrame:(UInt32)inNumberFrame;
 @end
 
-#pragma mark Audio queue callback
+#pragma mark Audio unit callback
 
-static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBufferRef inBuffer, const AudioTimeStamp *inStartTime, UInt32 inNumPackets, const AudioStreamPacketDescription *inPacketDesc)
+static OSStatus InputRenderProc(void *inRefCon,
+                            AudioUnitRenderActionFlags *ioActionFlags,
+                            const AudioTimeStamp *inTimeStamp,
+                            UInt32 inBusNumber,
+                            UInt32 inNumberFrame,
+                            AudioBufferList *ioData)
 {
-    AudioInputBuffer* owner = (__bridge AudioInputBuffer *)(inUserData);
-    [owner pushBuffer:inBuffer];
+    AudioInputBuffer* owner = (__bridge AudioInputBuffer *)(inRefCon);
+    [owner inputCallback:ioActionFlags inTimeStamp:inTimeStamp inBusNumber:inBusNumber inNumberFrame:inNumberFrame];
+    return noErr;
 }
 
 #pragma mark
@@ -32,148 +41,270 @@ static void HandleInputBuffer(void *inUserData, AudioQueueRef inAQ, AudioQueueBu
 {
     self = [super init];
     if (self) {
-        // 44.1 kHz single float LPCM
-        AudioStreamBasicDescription format = {0};
-        format.mFormatID = kAudioFormatLinearPCM;
-        format.mSampleRate = kSampleRate;
-        format.mChannelsPerFrame = 1;
-        format.mBitsPerChannel = 32;
-        format.mBytesPerPacket = format.mChannelsPerFrame * sizeof(Float32);
-        format.mBytesPerFrame = format.mBytesPerPacket;
-        format.mFramesPerPacket = 1;
-        format.mFormatFlags = kAudioFormatFlagsCanonical;
-        
-        // Initialize the audio queue object.
-        AudioQueueNewInput(&format, HandleInputBuffer, (__bridge void *)(self), NULL, kCFRunLoopCommonModes, 0, &audioQueue);
-        
-        // Initialize the buffers.
-        for (int i = 0; i < kBufferTotal; i++) {
-            AudioQueueBufferRef buffer;
-            AudioQueueAllocateBuffer(audioQueue, kBufferLength * sizeof(Float32), &buffer);
-            AudioQueueEnqueueBuffer(audioQueue, buffer, 0, NULL);
-        }
-        
-        // Initialize the buffer array.
-        lastBuffers = calloc(sizeof(AudioQueueBufferRef), kBufferStay + 1);
+        [self initAudioUnit];
+        _ringBuffer = malloc(kRingBufferByteSize);
+        memset(_ringBuffer, 0, kRingBufferByteSize);
     }
     return self;
 }
 
 - (void)dealloc
 {
-    AudioQueueDispose(audioQueue, false);
-    // The buffers are disposed with the queue.
+    free(_ringBuffer);
 }
 
 #pragma mark Accessor
 
 - (Float32)sampleRate
 {
-    return kSampleRate;
+    return _sampleRate;
 }
 
 #pragma mark Control methods
 
 - (void)start
 {
-    AudioQueueStart(audioQueue, NULL);
+    OSStatus error = AudioOutputUnitStart(_auHAL);
+    NSAssert(error == noErr, @"Failed to start the AUHAL (%d).", error);
 }
 
 - (void)stop
 {
-    AudioQueueStop(audioQueue, false);
+    AudioOutputUnitStop(_auHAL);
 }
 
 #pragma mark Waveform retrieval methods
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
-    NSUInteger filled = 0;
-    int bufferIndex = 0;
-    
-    while (filled < length) {
-        // Get the next buffer.
-        AudioQueueBufferRef buffer = lastBuffers[bufferIndex++];
-        if (buffer == NULL) break; // Stops at the sentinel.
-        
-        // Determine the length to copy.
-        NSUInteger toCopy = MIN(length - filled, buffer->mAudioDataByteSize / sizeof(Float32));
-        
-        // Copy!
-        memcpy(destination + filled, buffer->mAudioData, toCopy * sizeof(Float32));
-        filled += toCopy;
-    }
-    
-    // Not filled up?
-    if (filled < length) {
-        // Slide the waveform to the end of the buffer.
-        NSUInteger offset = length - filled;
-        memcpy(destination + offset, destination, filled * sizeof(Float32));
-        memset(destination, 0, offset * sizeof(Float32));
+    NSUInteger byteLength = length * sizeof(Float32);
+    if (byteLength <= _ringBufferOffset) {
+        memcpy(destination, _ringBuffer + _ringBufferOffset - byteLength, byteLength);
+    } else {
+        NSUInteger fragSize = byteLength - _ringBufferOffset;
+        memcpy(destination, _ringBuffer + kRingBufferByteSize - fragSize, fragSize);
+        memcpy((void*)destination + fragSize, _ringBuffer, _ringBufferOffset);
     }
 }
 
 - (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
 {
-    // Use half number of the length.
-    NSAssert((length & 1) == 0, @"Invalid arguments (totalLength must be even number)");
-    length /= 2;
-    
-    NSUInteger filled = 0;
-    int bufferIndex = 0;
-
-    while (filled < length) {
-        // Get the next buffer.
-        AudioQueueBufferRef buffer = lastBuffers[bufferIndex++];
-        if (buffer == NULL) break; // Always stops at the sentinel.
-        
-        NSAssert((buffer->mAudioDataByteSize & 1) == 0, @"Invalid data size (must be even number)");
-
-        // Determine the length to copy.
-        NSUInteger toCopy = MIN(length - filled, buffer->mAudioDataByteSize / (2 * sizeof(Float32)));
-
-        // Copy!
-        DSPSplitComplex tempComplex = { even + filled, odd + filled };
-        vDSP_ctoz((const DSPComplex*)buffer->mAudioData, 2, &tempComplex, 1, toCopy);
-        filled += toCopy;
-    }
-
-    // Not filled up?
-    if (filled < length) {
-        // Slide the waveform to the end of the buffer.
-        NSUInteger offset = length - filled;
-        
-        DSPSplitComplex c1 = { even, odd };
-        DSPSplitComplex c2 = { even + offset, odd + offset };
-        
-        vDSP_zvmov(&c1, 1, &c2, 1, filled / 2);
-        
-        vDSP_vclr(c1.realp, 1, offset);
-        vDSP_vclr(c1.imagp, 1, offset);
+    NSUInteger byteLength = length * sizeof(Float32);
+    if (byteLength <= _ringBufferOffset) {
+        DSPSplitComplex tempComplex = { even, odd };
+        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &tempComplex, 1, length / 2);
+    } else {
+        NSUInteger fragSize = byteLength - _ringBufferOffset;
+        NSUInteger fragSize2 = (byteLength - _ringBufferOffset) / sizeof(float);
+        DSPSplitComplex tempComplex1 = { even, odd };
+        DSPSplitComplex tempComplex2 = { even + fragSize2 / 2, odd + fragSize2 / 2 };
+        vDSP_ctoz((const DSPComplex*)((void*)_ringBuffer  + kRingBufferByteSize - fragSize), 2, &tempComplex1, 1, fragSize2 / 2);
+        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &tempComplex2, 1, _ringBufferOffset / sizeof(float) / 2);
     }
 }
 
 #pragma mark Private method
 
-- (void)pushBuffer:(AudioQueueBufferRef)buffer
+- (void)initAudioUnit
 {
-    // Count the buffers already in the array.
-    int count = 0;
-    while (lastBuffers[count] != NULL) { // Always stops at the sentinel.
-        count++;
+    //
+    // Create an AUHAL instance.
+    //
+    
+    AudioComponent component;
+    AudioComponentDescription description;
+    
+    description.componentType = kAudioUnitType_Output;
+    description.componentSubType = kAudioUnitSubType_HALOutput;
+    description.componentManufacturer = kAudioUnitManufacturer_Apple;
+    description.componentFlags = 0;
+    description.componentFlagsMask = 0;
+    
+    component = AudioComponentFindNext(NULL, &description);
+    NSAssert(component, @"Failed to find an input device.");
+    
+    OSStatus error = AudioComponentInstanceNew(component, &_auHAL);
+    NSAssert(error == noErr, @"Failed to create an AUHAL instance.");
+    
+    //
+    // Enable the input bus, and disable the output bus.
+    //
+    
+    const UInt32 kInputElement = 1;
+    const UInt32 kOutputElement = 0;
+
+    UInt32 enableIO = 1;
+    error = AudioUnitSetProperty(_auHAL,
+                                 kAudioOutputUnitProperty_EnableIO,
+                                 kAudioUnitScope_Input,
+                                 kInputElement,
+                                 &enableIO,
+                                 sizeof(enableIO));
+    NSAssert(error == noErr, @"Failed to enable the input bus.");
+    
+    enableIO = 0;
+    error = AudioUnitSetProperty(_auHAL,
+                                 kAudioOutputUnitProperty_EnableIO,
+                                 kAudioUnitScope_Output,
+                                 kOutputElement,
+                                 &enableIO,
+                                 sizeof(enableIO));
+    NSAssert(error == noErr, @"Failed to disable the output bus.");
+    
+    //
+    // Set the unit to the default input device.
+    //
+    
+    AudioObjectPropertyAddress address = {
+        kAudioHardwarePropertyDefaultInputDevice,
+        kAudioObjectPropertyScopeGlobal,
+        kAudioObjectPropertyElementMaster
+    };
+    AudioDeviceID inputDevice;
+    UInt32 size = sizeof(AudioDeviceID);
+    
+    error = AudioObjectGetPropertyData(kAudioObjectSystemObject,
+                                       &address,
+                                       0,
+                                       NULL,
+                                       &size,
+                                       &inputDevice);
+    NSAssert(error == noErr, @"Failed to retrieve the default input device.");
+
+    error = AudioUnitSetProperty(_auHAL,
+                                 kAudioOutputUnitProperty_CurrentDevice,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &inputDevice,
+                                 sizeof(inputDevice));
+    NSAssert(error == noErr, @"Failed to set the unit to the default input device.");
+    
+    //
+    // Adopt the stream format.
+    //
+    
+    AudioStreamBasicDescription deviceFormat;
+    AudioStreamBasicDescription desiredFormat;
+    size = sizeof(AudioStreamBasicDescription);
+    
+    error = AudioUnitGetProperty(_auHAL,
+                                 kAudioUnitProperty_StreamFormat,
+                                 kAudioUnitScope_Input,
+                                 kInputElement,
+                                 &deviceFormat,
+                                 &size);
+    NSAssert(error == noErr, @"Failed to get the input format.");
+
+    error = AudioUnitGetProperty(_auHAL,
+                                 kAudioUnitProperty_StreamFormat,
+                                 kAudioUnitScope_Output,
+                                 kInputElement,
+                                 &desiredFormat,
+                                 &size);
+    NSAssert(error == noErr, @"Failed to get the output format.");
+    
+    // Same sample rate, same number of channels.
+    desiredFormat.mSampleRate = deviceFormat.mSampleRate;
+    desiredFormat.mChannelsPerFrame = deviceFormat.mChannelsPerFrame;
+    
+    // Canonical audio format.
+    desiredFormat.mFormatID = kAudioFormatLinearPCM;
+    desiredFormat.mFormatFlags = kAudioFormatFlagsAudioUnitCanonical;
+    desiredFormat.mFramesPerPacket = 1;
+    desiredFormat.mBytesPerFrame = sizeof(Float32);
+    desiredFormat.mBytesPerPacket = sizeof(Float32);
+    desiredFormat.mBitsPerChannel = 8 * sizeof(Float32);
+    
+    error = AudioUnitSetProperty(_auHAL,
+                                 kAudioUnitProperty_StreamFormat,
+                                 kAudioUnitScope_Output,
+                                 kInputElement,
+                                 &desiredFormat,
+                                 sizeof(AudioStreamBasicDescription));
+    NSAssert(error == noErr, @"Failed to set the output format.");
+    
+    // Store the format info.
+    _sampleRate = deviceFormat.mSampleRate;
+    _channels = deviceFormat.mChannelsPerFrame;
+    
+    //
+    // Get the buffer frame size.
+    //
+    
+    UInt32 bufferSizeFrames;
+    size = sizeof(UInt32);
+    
+    error = AudioUnitGetProperty(_auHAL,
+                                 kAudioDevicePropertyBufferFrameSize,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &bufferSizeFrames,
+                                 &size);
+    NSAssert(error == noErr, @"Failed to get the buffer frame size.");
+    
+    //
+    // Allocate the buffer.
+    //
+    
+    UInt32 bufferSizeBytes = bufferSizeFrames * sizeof(Float32);
+    
+    _inputBufferList = (AudioBufferList *)malloc(sizeof(AudioBufferList) + sizeof(AudioBuffer) * _channels);
+    _inputBufferList->mNumberBuffers = _channels;
+    
+    for (UInt32 i = 0; i < _channels; i++) {
+        AudioBuffer *buffer = &_inputBufferList->mBuffers[i];
+        buffer->mNumberChannels = 1;
+        buffer->mDataByteSize = bufferSizeBytes;
+        buffer->mData = malloc(bufferSizeBytes);
     }
     
-    if (count == kBufferStay) {
-        // Re-enqueue the first buffer and remove it from the array.
-        AudioQueueEnqueueBuffer(audioQueue, lastBuffers[0], 0, NULL);
-        for (int i = 0; i < count - 1; i++) {
-            lastBuffers[i] = lastBuffers[i + 1];
+    //
+    // Set up the input callback.
+    //
+    
+    AURenderCallbackStruct cb = { InputRenderProc, (__bridge void *)(self) };
+    
+    error = AudioUnitSetProperty(_auHAL,
+                                 kAudioOutputUnitProperty_SetInputCallback,
+                                 kAudioUnitScope_Global,
+                                 0,
+                                 &cb,
+                                 sizeof(AURenderCallbackStruct));
+    NSAssert(error == noErr, @"Failed to set up the input callback.");
+    
+    //
+    // Complete the initialization.
+    //
+    
+    error = AudioUnitInitialize(_auHAL);
+    NSAssert(error == noErr, @"Failed to initialize the AUHAL.");
+}
+
+- (void)inputCallback:(AudioUnitRenderActionFlags *)ioActionFlags
+          inTimeStamp:(const AudioTimeStamp *)inTimeStamp
+          inBusNumber:(UInt32)inBusNumber
+        inNumberFrame:(UInt32)inNumberFrame
+{
+    // Retrieve input samples.
+    OSStatus error = AudioUnitRender(_auHAL,
+                                     ioActionFlags,
+                                     inTimeStamp,
+                                     inBusNumber,
+                                     inNumberFrame,
+                                     _inputBufferList);
+    
+    if (error == noErr) {
+        AudioBuffer *input = &_inputBufferList->mBuffers[0];
+        if (input->mDataByteSize <= kRingBufferByteSize - _ringBufferOffset) {
+            memcpy(_ringBuffer + _ringBufferOffset, input->mData, input->mDataByteSize);
+            _ringBufferOffset += input->mDataByteSize;
+        } else {
+            UInt32 bufferRest = kRingBufferByteSize - _ringBufferOffset;
+            memcpy(_ringBuffer + _ringBufferOffset, input->mData, bufferRest);
+            memcpy(_ringBuffer, input->mData + bufferRest, input->mDataByteSize - bufferRest);
+            _ringBufferOffset = input->mDataByteSize - bufferRest;
         }
-        count--;
     }
-    
-    // Append the buffer to the array.
-    lastBuffers[count] = buffer;
 }
 
 #pragma mark Static method

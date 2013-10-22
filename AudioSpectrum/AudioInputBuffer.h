@@ -1,12 +1,15 @@
 #import <Foundation/Foundation.h>
-#import <AudioToolbox/AudioToolbox.h>
+#import <AudioUnit/AudioUnit.h>
 
 @interface AudioInputBuffer : NSObject
 {
 @private
-    // Audio queue objects.
-    AudioQueueRef audioQueue;
-    AudioQueueBufferRef *lastBuffers;
+    AudioComponentInstance _auHAL;
+    AudioBufferList *_inputBufferList;
+    UInt32 _sampleRate;
+    UInt32 _channels;
+    void *_ringBuffer;
+    UInt32 _ringBufferOffset;
 }
 
 // Sampling rate.
