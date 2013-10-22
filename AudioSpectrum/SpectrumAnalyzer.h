@@ -19,7 +19,7 @@
     Float32 *_window;
 
     // Spectrum data.
-    Float32 *_spectra;
+    Float32 *_spectrum;
     Float32 *_bandLevels;
 }
 
@@ -28,7 +28,7 @@
 @property (nonatomic, assign) NSUInteger bandType;
 
 // Spectrum data accessors.
-@property (nonatomic, readonly) const Float32 *spectra;
+@property (nonatomic, readonly) const Float32 *spectrum;
 @property (nonatomic, readonly) const Float32 *bandLevels;
 
 // Returns the number of the octave bands.

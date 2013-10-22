@@ -35,14 +35,14 @@
         
         for (int i = 0; i < bandCount; i++) {
             float x = (0.5f + i)  * barInterval;
-            float y = log10f(bandLevels[i]) * 0.2f * size.height;
+            float y = log10f(bandLevels[i]) * 0.5f * size.height;
             NSRectFill(NSMakeRect(x - 0.5f * barWidth, 0, barWidth, y));
         }
     }
     
     // Draw the spectrum graph.
     {
-        const float *spectra = analyzer.spectra;
+        const float *spectrum = analyzer.spectrum;
         int spectrumCount = (int)analyzer.pointNumber / 2;
 
         NSBezierPath *path = [NSBezierPath bezierPath];
@@ -50,7 +50,7 @@
 
         for (int i = 1; i < spectrumCount; i++) {
             float x = log10f(i) * xScale;
-            float y = spectra[i] * 0.001f * size.height;
+            float y = spectrum[i] * 0.05f * size.height;
             if (i == 1) {
                 [path moveToPoint:NSMakePoint(x, y)];
             } else {

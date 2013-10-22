@@ -55,7 +55,7 @@ static Float32 bandwidthForBands[] = {
         free(_fftBuffer.realp);
         free(_fftBuffer.imagp);
         free(_window);
-        free(_spectra);
+        free(_spectrum);
     }
 
     // Update the number.
@@ -72,7 +72,7 @@ static Float32 bandwidthForBands[] = {
         _window = calloc(_pointNumber, sizeof(Float32));
         vDSP_blkman_window(_window, number, 0);
         
-        _spectra = calloc(_pointNumber / 2, sizeof(Float32));
+        _spectrum = calloc(_pointNumber / 2, sizeof(Float32));
     }
 }
 
@@ -98,7 +98,7 @@ static Float32 bandwidthForBands[] = {
     vDSP_fft_zrip(_fftSetup, &_fftBuffer, 1, _logPointNumber, FFT_FORWARD);
     
     // Calculate the power spectrum.
-    vDSP_zvmags(&_fftBuffer, 1, _spectra, 1, _pointNumber / 2);
+    vDSP_vdist(_fftBuffer.realp, 1, _fftBuffer.imagp, 1, _spectrum, 1, _pointNumber / 2);
     
     // Calculate the band levels.
     NSUInteger bandCount = [self countBands];
@@ -115,7 +115,7 @@ static Float32 bandwidthForBands[] = {
         
         Float32 maxLevel = 0.0f;
         for (int i = idxlo; i <= idxhi; i++) {
-            maxLevel = MAX(maxLevel, _spectra[i]);
+            maxLevel = MAX(maxLevel, _spectrum[i]);
         }
         
         _bandLevels[band] = maxLevel;
