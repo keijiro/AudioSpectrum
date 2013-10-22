@@ -63,7 +63,6 @@
 		0FA45989180D750B004004D4 /* AudioSpectrumTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSpectrumTests.m; sourceTree = "<group>"; };
 		0FA45993180DEBCF004004D4 /* SpectrumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectrumView.h; sourceTree = "<group>"; };
 		0FA45994180DEBCF004004D4 /* SpectrumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumView.m; sourceTree = "<group>"; };
-		0FA45996180E17D4004004D4 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		0FC18D1C181544E900D4718E /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		0FC18D1E181548BC00D4718E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -117,7 +116,6 @@
 				0FC18D1E181548BC00D4718E /* CoreAudio.framework */,
 				0FC18D1C181544E900D4718E /* AudioUnit.framework */,
 				0F3574B5180E8E9000836BC3 /* Accelerate.framework */,
-				0FA45996180E17D4004004D4 /* AudioToolbox.framework */,
 				0FA4595F180D750B004004D4 /* Cocoa.framework */,
 				0FA4597E180D750B004004D4 /* XCTest.framework */,
 				0FA45961180D750B004004D4 /* Other Frameworks */,

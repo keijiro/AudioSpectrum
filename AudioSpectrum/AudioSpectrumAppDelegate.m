@@ -14,6 +14,11 @@
     [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
 }
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender
+{
+    return YES;
+}
+
 - (void)redraw
 {
     [[SpectrumAnalyzer sharedInstance] calculateWithAudioInputBuffer:[AudioInputBuffer sharedInstance]];
