@@ -6,10 +6,9 @@
 @private
     AudioComponentInstance _auHAL;
     AudioBufferList *_inputBufferList;
-    UInt32 _sampleRate;
-    UInt32 _channels;
-    void *_ringBuffer;
-    UInt32 _ringBufferOffset;
+    Float32 _sampleRate;
+    Float32 *_ringBuffer;
+    NSUInteger _ringBufferOffset;
 }
 
 // Sampling rate.

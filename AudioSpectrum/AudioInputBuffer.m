@@ -4,8 +4,15 @@
 
 #pragma mark Configurations
 
-#define kRingBufferSize 4096
+#define kRingBufferSize 8192
 #define kRingBufferByteSize (kRingBufferSize * sizeof(Float32))
+
+#pragma mark Local utility function
+
+static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInteger length)
+{
+    memcpy(destination, source, length * sizeof(Float32));
+}
 
 #pragma mark Private method definition
 
@@ -17,17 +24,20 @@
         inNumberFrame:(UInt32)inNumberFrame;
 @end
 
-#pragma mark Audio unit callback
+#pragma mark Audio Unit callback
 
 static OSStatus InputRenderProc(void *inRefCon,
-                            AudioUnitRenderActionFlags *ioActionFlags,
-                            const AudioTimeStamp *inTimeStamp,
-                            UInt32 inBusNumber,
-                            UInt32 inNumberFrame,
-                            AudioBufferList *ioData)
+                                AudioUnitRenderActionFlags *ioActionFlags,
+                                const AudioTimeStamp *inTimeStamp,
+                                UInt32 inBusNumber,
+                                UInt32 inNumberFrame,
+                                AudioBufferList *ioData)
 {
     AudioInputBuffer* owner = (__bridge AudioInputBuffer *)(inRefCon);
-    [owner inputCallback:ioActionFlags inTimeStamp:inTimeStamp inBusNumber:inBusNumber inNumberFrame:inNumberFrame];
+    [owner inputCallback:ioActionFlags
+             inTimeStamp:inTimeStamp
+             inBusNumber:inBusNumber
+           inNumberFrame:inNumberFrame];
     return noErr;
 }
 
@@ -42,6 +52,8 @@ static OSStatus InputRenderProc(void *inRefCon,
     self = [super init];
     if (self) {
         [self initAudioUnit];
+        
+        // Initialize the ring buffer.
         _ringBuffer = malloc(kRingBufferByteSize);
         memset(_ringBuffer, 0, kRingBufferByteSize);
     }
@@ -50,10 +62,11 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 - (void)dealloc
 {
+    AudioComponentInstanceDispose(_auHAL);
     free(_ringBuffer);
 }
 
-#pragma mark Accessor
+#pragma mark Property accessor
 
 - (Float32)sampleRate
 {
@@ -77,29 +90,30 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
-    NSUInteger byteLength = length * sizeof(Float32);
-    if (byteLength <= _ringBufferOffset) {
-        memcpy(destination, _ringBuffer + _ringBufferOffset - byteLength, byteLength);
+    if (length <= _ringBufferOffset) {
+        // Simply copy a part of the ring buffer.
+        FloatCopy(_ringBuffer + _ringBufferOffset - length, destination, length);
     } else {
-        NSUInteger fragSize = byteLength - _ringBufferOffset;
-        memcpy(destination, _ringBuffer + kRingBufferByteSize - fragSize, fragSize);
-        memcpy((void*)destination + fragSize, _ringBuffer, _ringBufferOffset);
+        // Copy the tail and the head of the ring buffer.
+        NSUInteger tail = length - _ringBufferOffset;
+        FloatCopy(_ringBuffer + kRingBufferSize - tail, destination, tail);
+        FloatCopy(_ringBuffer, destination + tail, _ringBufferOffset);
     }
 }
 
 - (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
 {
-    NSUInteger byteLength = length * sizeof(Float32);
-    if (byteLength <= _ringBufferOffset) {
-        DSPSplitComplex tempComplex = { even, odd };
-        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &tempComplex, 1, length / 2);
+    if (length <= _ringBufferOffset) {
+        // Simply copy a part of the ring buffer.
+        DSPSplitComplex dest = { even, odd };
+        vDSP_ctoz((const DSPComplex*)(_ringBuffer + _ringBufferOffset - length), 2, &dest, 1, length / 2);
     } else {
-        NSUInteger fragSize = byteLength - _ringBufferOffset;
-        NSUInteger fragSize2 = (byteLength - _ringBufferOffset) / sizeof(float);
-        DSPSplitComplex tempComplex1 = { even, odd };
-        DSPSplitComplex tempComplex2 = { even + fragSize2 / 2, odd + fragSize2 / 2 };
-        vDSP_ctoz((const DSPComplex*)((void*)_ringBuffer  + kRingBufferByteSize - fragSize), 2, &tempComplex1, 1, fragSize2 / 2);
-        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &tempComplex2, 1, _ringBufferOffset / sizeof(float) / 2);
+        // Copy the tail and the head of the ring buffer.
+        NSUInteger tail = length - _ringBufferOffset;
+        DSPSplitComplex destTail = { even, odd };
+        DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
+        vDSP_ctoz((const DSPComplex*)(_ringBuffer  + kRingBufferSize - tail), 2, &destTail, 1, tail / 2);
+        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &destHead, 1, _ringBufferOffset / 2);
     }
 }
 
@@ -223,9 +237,8 @@ static OSStatus InputRenderProc(void *inRefCon,
                                  sizeof(AudioStreamBasicDescription));
     NSAssert(error == noErr, @"Failed to set the output format.");
     
-    // Store the format info.
+    // Store the format information.
     _sampleRate = deviceFormat.mSampleRate;
-    _channels = deviceFormat.mChannelsPerFrame;
     
     //
     // Get the buffer frame size.
@@ -247,11 +260,12 @@ static OSStatus InputRenderProc(void *inRefCon,
     //
     
     UInt32 bufferSizeBytes = bufferSizeFrames * sizeof(Float32);
+    UInt32 channels = deviceFormat.mChannelsPerFrame;
     
-    _inputBufferList = (AudioBufferList *)malloc(sizeof(AudioBufferList) + sizeof(AudioBuffer) * _channels);
-    _inputBufferList->mNumberBuffers = _channels;
+    _inputBufferList = (AudioBufferList *)malloc(sizeof(AudioBufferList) + sizeof(AudioBuffer) * channels);
+    _inputBufferList->mNumberBuffers = channels;
     
-    for (UInt32 i = 0; i < _channels; i++) {
+    for (UInt32 i = 0; i < channels; i++) {
         AudioBuffer *buffer = &_inputBufferList->mBuffers[i];
         buffer->mNumberChannels = 1;
         buffer->mDataByteSize = bufferSizeBytes;
@@ -294,15 +308,22 @@ static OSStatus InputRenderProc(void *inRefCon,
                                      _inputBufferList);
     
     if (error == noErr) {
+        // Use the first channel only.
         AudioBuffer *input = &_inputBufferList->mBuffers[0];
-        if (input->mDataByteSize <= kRingBufferByteSize - _ringBufferOffset) {
-            memcpy(_ringBuffer + _ringBufferOffset, input->mData, input->mDataByteSize);
-            _ringBufferOffset += input->mDataByteSize;
+        Float32 *inputData = input->mData;
+        
+        NSUInteger sampleCount = input->mDataByteSize / sizeof(Float32);
+        NSUInteger bufferRest = kRingBufferSize - _ringBufferOffset;
+        
+        if (sampleCount <= bufferRest) {
+            // Simply copy the input data.
+            FloatCopy(inputData, _ringBuffer + _ringBufferOffset, sampleCount);
+            _ringBufferOffset += sampleCount;
         } else {
-            UInt32 bufferRest = kRingBufferByteSize - _ringBufferOffset;
-            memcpy(_ringBuffer + _ringBufferOffset, input->mData, bufferRest);
-            memcpy(_ringBuffer, input->mData + bufferRest, input->mDataByteSize - bufferRest);
-            _ringBufferOffset = input->mDataByteSize - bufferRest;
+            // Split the input data into two parts and copy each part.
+            FloatCopy(inputData, _ringBuffer + _ringBufferOffset, bufferRest);
+            FloatCopy(inputData + bufferRest, _ringBuffer, sampleCount - bufferRest);
+            _ringBufferOffset = sampleCount - bufferRest;
         }
     }
 }
