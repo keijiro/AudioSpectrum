@@ -12,9 +12,14 @@
 {
     [[AudioInputBuffer sharedInstance] start];
     
+    // Reset to the default settings.
     [self.fftPointPopUp selectItemAtIndex:1];
-    [self.bandTypePopUp selectItemAtIndex:3];
-
+    [SpectrumAnalyzer sharedInstance].pointNumber = 1024;
+    
+    [self.bandTypePopUp selectItemAtIndex:2];
+    [SpectrumAnalyzer sharedInstance].bandType = 2;
+    
+    // Set up the timer for refreshing.
     [NSTimer scheduledTimerWithTimeInterval:(1.0f / 30) target:self selector:@selector(redraw) userInfo:nil repeats:YES];
 }
 
@@ -25,7 +30,6 @@
 
 - (void)redraw
 {
-    [[SpectrumAnalyzer sharedInstance] calculateWithAudioInputBuffer:[AudioInputBuffer sharedInstance]];
     [self.spectrumView setNeedsDisplay:YES];
 }
 
