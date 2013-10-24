@@ -86,6 +86,9 @@ static Float32 bandwidthForBands[] = {
         _window = calloc(_pointNumber, sizeof(Float32));
         vDSP_blkman_window(_window, number, 0);
         
+        Float32 normFactor = 0.5f / number;
+        vDSP_vsmul(_window, 1, &normFactor, _window, 1, number);
+        
         _spectrum = calloc(_pointNumber / 2, sizeof(Float32));
     }
 }
@@ -110,6 +113,9 @@ static Float32 bandwidthForBands[] = {
     
     // FFT.
     vDSP_fft_zrip(_fftSetup, &_fftBuffer, 1, _logPointNumber, FFT_FORWARD);
+    
+    // Zero out the nyquist value.
+    _fftBuffer.imagp[0] = 0;
     
     // Calculate the power spectrum.
     vDSP_vdist(_fftBuffer.realp, 1, _fftBuffer.imagp, 1, _spectrum, 1, _pointNumber / 2);

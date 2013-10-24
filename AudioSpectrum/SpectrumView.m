@@ -39,7 +39,7 @@
         
         for (int i = 0; i < bandCount; i++) {
             float x = (0.5f + i)  * barInterval;
-            float y = log10f(bandLevels[i]) * 0.5f * size.height;
+            float y = 20.0f * bandLevels[i] * size.height;
             NSRectFill(NSMakeRect(x - 0.5f * barWidth, 0, barWidth, y));
         }
     }
@@ -54,7 +54,7 @@
 
         for (int i = 1; i < spectrumCount; i++) {
             float x = log10f(i) * xScale;
-            float y = spectrum[i] * 0.05f * size.height;
+            float y = 20.0f * spectrum[i] * size.height;
             if (i == 1) {
                 [path moveToPoint:NSMakePoint(x, y)];
             } else {
