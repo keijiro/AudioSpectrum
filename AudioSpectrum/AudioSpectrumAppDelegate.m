@@ -35,7 +35,7 @@
 
 - (IBAction)updateConfiguration:(id)sender
 {
-    static const int pointNumbers[] = { 512, 1024, 2048, 4096 };
+    static const int pointNumbers[] = { 512, 1024, 2048, 4096, 8192 };
     [SpectrumAnalyzer sharedInstance].pointNumber = pointNumbers[self.fftPointPopUp.indexOfSelectedItem];
     [SpectrumAnalyzer sharedInstance].bandType = self.bandTypePopUp.indexOfSelectedItem;
 }

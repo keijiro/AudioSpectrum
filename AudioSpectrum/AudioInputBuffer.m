@@ -8,7 +8,7 @@
 
 #pragma mark Configurations
 
-#define kRingBufferSize 8192
+#define kRingBufferSize (1024 * 16)
 #define kRingBufferByteSize (kRingBufferSize * sizeof(Float32))
 
 #pragma mark Local utility function
