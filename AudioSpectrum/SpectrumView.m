@@ -38,18 +38,11 @@
         float barInterval = size.width / bandCount;
         float barWidth = 0.5f * barInterval;
         
-        float kZeroOffset = 1.5849e-13;
-        
         [[NSColor colorWithWhite:0.8f alpha:1.0f] setFill];
         
         for (int i = 0; i < bandCount; i++) {
             float x = (0.5f + i)  * barInterval;
-            float y = bandLevels[i];
-            
-            // Convert amplitude to decibel.
-            y = 20.0f * log10f(y + kZeroOffset);
-            y = (1.0f + 0.01f * y) * size.height;
-            
+            float y = (1.0f + 0.01f * bandLevels[i]) * size.height;
             NSRectFill(NSMakeRect(x - 0.5f * barWidth, 0, barWidth, y));
         }
     }
@@ -59,19 +52,12 @@
         const float *spectrum = analyzer.spectrum;
         int spectrumCount = (int)analyzer.pointNumber / 2;
         
-        // Convert amplitude to decibel.
-        float dbSpectrum[spectrumCount];
-        float kZeroOffset = 1.5849e-13;
-        float kZeroDB = 1;
-        vDSP_vsadd(spectrum, 1, &kZeroOffset, dbSpectrum, 1, spectrumCount);
-        vDSP_vdbcon(dbSpectrum, 1, &kZeroDB, dbSpectrum, 1, spectrumCount, 1);
-        
         NSBezierPath *path = [NSBezierPath bezierPath];
         float xScale = size.width / log10f(spectrumCount - 1);
 
         for (int i = 1; i < spectrumCount; i++) {
             float x = log10f(i) * xScale;
-            float y = (1.0f + 0.01f * dbSpectrum[i]) * size.height;
+            float y = (1.0f + 0.01f * spectrum[i]) * size.height;
             if (i == 1) {
                 [path moveToPoint:NSMakePoint(x, y)];
             } else {

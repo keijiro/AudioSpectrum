@@ -104,12 +104,14 @@ static Float32 bandwidthForBands[] = {
 
 - (void)calculateWithAudioInputBuffer:(AudioInputBuffer *)buffer
 {
+    NSUInteger length = _pointNumber / 2;
+    
     // Retrieve the waveform.
     [buffer splitEvenTo:_fftBuffer.realp oddTo:_fftBuffer.imagp totalLength:_pointNumber];
     
     // Apply the window function.
-    vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, _pointNumber / 2);
-    vDSP_vmul(_fftBuffer.imagp, 1, _window + 1, 2, _fftBuffer.imagp, 1, _pointNumber / 2);
+    vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, length);
+    vDSP_vmul(_fftBuffer.imagp, 1, _window + 1, 2, _fftBuffer.imagp, 1, length);
     
     // FFT.
     vDSP_fft_zrip(_fftSetup, &_fftBuffer, 1, _logPointNumber, FFT_FORWARD);
@@ -117,9 +119,17 @@ static Float32 bandwidthForBands[] = {
     // Zero out the nyquist value.
     _fftBuffer.imagp[0] = 0;
     
-    // Calculate the power spectrum.
-    vDSP_vdist(_fftBuffer.realp, 1, _fftBuffer.imagp, 1, _spectrum, 1, _pointNumber / 2);
+    // Calculate power spectrum.
+    vDSP_zvmags(&_fftBuffer, 1, _spectrum, 1, length);
     
+    // Add -128db offset to avoid log(0).
+    float kZeroOffset = 1.5849e-13;
+    vDSP_vsadd(_spectrum, 1, &kZeroOffset, _spectrum, 1, length);
+
+    // Convert power to decibel.
+    float kZeroDB = 1;
+    vDSP_vdbcon(_spectrum, 1, &kZeroDB, _spectrum, 1, length, 0);
+
     // Calculate the band levels.
     NSUInteger bandCount = [self countBands];
     
@@ -133,8 +143,8 @@ static Float32 bandwidthForBands[] = {
         int idxlo = MIN((int)floorf(middleFreqs[band] / bandWidth * freqToIndexCoeff), maxIndex);
         int idxhi = MIN((int)floorf(middleFreqs[band] * bandWidth * freqToIndexCoeff), maxIndex);
         
-        Float32 maxLevel = 0.0f;
-        for (int i = idxlo; i <= idxhi; i++) {
+        Float32 maxLevel = _spectrum[idxlo];
+        for (int i = idxlo + 1; i <= idxhi; i++) {
             maxLevel = MAX(maxLevel, _spectrum[i]);
         }
         
