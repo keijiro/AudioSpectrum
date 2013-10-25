@@ -98,30 +98,40 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
-    if (length <= _ringBufferOffset) {
+    // Take a snapshot of the current status.
+    NSUInteger offset = _ringBufferOffset;
+    
+    // We don't care if the status is going to be changed, because there is enough margin.
+
+    if (length <= offset) {
         // Simply copy a part of the ring buffer.
-        FloatCopy(_ringBuffer + _ringBufferOffset - length, destination, length);
+        FloatCopy(_ringBuffer + offset - length, destination, length);
     } else {
         // Copy the tail and the head of the ring buffer.
-        NSUInteger tail = length - _ringBufferOffset;
+        NSUInteger tail = length - offset;
         FloatCopy(_ringBuffer + kRingBufferSize - tail, destination, tail);
-        FloatCopy(_ringBuffer, destination + tail, _ringBufferOffset);
+        FloatCopy(_ringBuffer, destination + tail, offset);
     }
 }
 
 - (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
 {
-    if (length <= _ringBufferOffset) {
+    // Take a snapshot of the current status.
+    NSUInteger offset = _ringBufferOffset;
+
+    // We don't care if the status is going to be changed, because there is enough margin.
+
+    if (length <= offset) {
         // Simply copy a part of the ring buffer.
         DSPSplitComplex dest = { even, odd };
-        vDSP_ctoz((const DSPComplex*)(_ringBuffer + _ringBufferOffset - length), 2, &dest, 1, length / 2);
+        vDSP_ctoz((const DSPComplex*)(_ringBuffer + offset - length), 2, &dest, 1, length / 2);
     } else {
         // Copy the tail and the head of the ring buffer.
-        NSUInteger tail = length - _ringBufferOffset;
+        NSUInteger tail = length - offset;
         DSPSplitComplex destTail = { even, odd };
         DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
         vDSP_ctoz((const DSPComplex*)(_ringBuffer + kRingBufferSize - tail), 2, &destTail, 1, tail / 2);
-        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &destHead, 1, _ringBufferOffset / 2);
+        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &destHead, 1, offset / 2);
     }
 }
 
