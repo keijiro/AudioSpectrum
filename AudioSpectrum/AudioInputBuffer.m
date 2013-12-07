@@ -13,7 +13,7 @@
 @private
     AudioComponentInstance _auHAL;
     AudioBufferList *_inputBufferList;
-    AudioRingBuffer *_ringBuffer;
+    NSArray *_ringBuffers;
     Float32 _sampleRate;
 }
 
@@ -53,9 +53,6 @@ static OSStatus InputRenderProc(void *inRefCon,
     self = [super init];
     if (self) {
         [self initAudioUnit];
-        
-        // Initialize the ring buffer.
-        _ringBuffer = [[AudioRingBuffer alloc] init];
     }
     return self;
 }
@@ -64,7 +61,7 @@ static OSStatus InputRenderProc(void *inRefCon,
 {
     AudioComponentInstanceDispose(_auHAL);
 #if ! __has_feature(objc_arc)
-    [_ringBuffer release];
+    [_ringBuffers release];
     [super dealloc];
 #endif
 }
@@ -246,6 +243,18 @@ static OSStatus InputRenderProc(void *inRefCon,
     }
     
     //
+    // Initialize the ring buffers.
+    //
+    
+    AudioRingBuffer *buffers[channels];
+    
+    for (UInt32 i = 0; i < channels; i++) {
+        buffers[i] = [[AudioRingBuffer alloc] init];
+    }
+    
+    _ringBuffers = [NSArray arrayWithObjects:buffers count:channels];
+    
+    //
     // Set up the input callback.
     //
     
@@ -281,9 +290,10 @@ static OSStatus InputRenderProc(void *inRefCon,
                                      _inputBufferList);
     
     if (error == noErr) {
-        // Use the first channel only.
-        AudioBuffer *input = &_inputBufferList->mBuffers[0];
-        [_ringBuffer pushSamples:input->mData count:input->mDataByteSize / sizeof(Float32)];
+        for (UInt32 i = 0; i < _inputBufferList->mNumberBuffers; i++) {
+            AudioBuffer *input = &_inputBufferList->mBuffers[i];
+            [_ringBuffers[i]  pushSamples:input->mData count:input->mDataByteSize / sizeof(Float32)];
+        }
     }
 }
 

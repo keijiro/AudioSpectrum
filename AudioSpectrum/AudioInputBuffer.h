@@ -5,15 +5,13 @@
 #import <Foundation/Foundation.h>
 #import <AudioUnit/AudioUnit.h>
 
-@class AudioRingBuffer;
-
 @interface AudioInputBuffer : NSObject
 
 // Sampling rate.
 @property (readonly) Float32 sampleRate;
 
-// Ring buffer.
-@property (readonly) AudioRingBuffer *ringBuffer;
+// Ring buffer array.
+@property (readonly) NSArray *ringBuffers;
 
 // Control methods.
 - (void)start;

@@ -75,7 +75,7 @@
     {
         int waveformLength = (int)analyzer.pointNumber;
         float waveform[waveformLength];
-        [[AudioInputBuffer sharedInstance].ringBuffer copyTo:waveform length:waveformLength];
+        [[AudioInputBuffer sharedInstance].ringBuffers.firstObject copyTo:waveform length:waveformLength];
         
         NSBezierPath *path = [NSBezierPath bezierPath];
         float xScale = size.width / waveformLength;
