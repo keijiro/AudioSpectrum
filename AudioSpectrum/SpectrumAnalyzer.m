@@ -25,6 +25,27 @@ static Float32 bandwidthForBands[] = {
     1.12246204831f  // 2^(1/6)
 };
 
+@interface SpectrumAnalyzer ()
+{
+@private
+    // FFT data point number.
+    NSUInteger _pointNumber;
+    NSUInteger _logPointNumber;
+    
+    // Octave band type.
+    NSUInteger _bandType;
+    
+    // FFT objects.
+    FFTSetup _fftSetup;
+    DSPSplitComplex _fftBuffer;
+    Float32 *_window;
+    
+    // Spectrum data.
+    Float32 *_spectrum;
+    Float32 *_bandLevels;
+}
+@end
+
 @implementation SpectrumAnalyzer
 
 #if ! __has_feature(objc_arc)

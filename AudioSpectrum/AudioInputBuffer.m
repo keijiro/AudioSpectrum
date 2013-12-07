@@ -20,12 +20,22 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
 
 #pragma mark Private method definition
 
-@interface AudioInputBuffer(PrivateMethod)
+@interface AudioInputBuffer ()
+{
+@private
+    AudioComponentInstance _auHAL;
+    AudioBufferList *_inputBufferList;
+    Float32 _sampleRate;
+    Float32 *_ringBuffer;
+    NSUInteger _ringBufferOffset;
+}
+
 - (void)initAudioUnit;
 - (void)inputCallback:(AudioUnitRenderActionFlags *)ioActionFlags
           inTimeStamp:(const AudioTimeStamp *)inTimeStamp
           inBusNumber:(UInt32)inBusNumber
         inNumberFrame:(UInt32)inNumberFrame;
+
 @end
 
 #pragma mark Audio Unit callback
