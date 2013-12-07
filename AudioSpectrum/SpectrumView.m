@@ -5,6 +5,7 @@
 #import "SpectrumView.h"
 #import "SpectrumAnalyzer.h"
 #import "AudioInputBuffer.h"
+#import "AudioRingBuffer.h"
 
 @implementation SpectrumView
 
@@ -74,7 +75,7 @@
     {
         int waveformLength = (int)analyzer.pointNumber;
         float waveform[waveformLength];
-        [[AudioInputBuffer sharedInstance] copyTo:waveform length:waveformLength];
+        [[AudioInputBuffer sharedInstance].ringBuffer copyTo:waveform length:waveformLength];
         
         NSBezierPath *path = [NSBezierPath bezierPath];
         float xScale = size.width / waveformLength;

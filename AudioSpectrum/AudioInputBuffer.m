@@ -3,20 +3,8 @@
 // https://github.com/keijiro/AudioSpectrum
 
 #import "AudioInputBuffer.h"
-#import <Accelerate/Accelerate.h>
+#import "AudioRingBuffer.h"
 #import <CoreAudio/CoreAudio.h>
-
-#pragma mark Configurations
-
-#define kRingBufferSize (1024 * 16)
-#define kRingBufferByteSize (kRingBufferSize * sizeof(Float32))
-
-#pragma mark Local utility function
-
-static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInteger length)
-{
-    memcpy(destination, source, length * sizeof(Float32));
-}
 
 #pragma mark Private method definition
 
@@ -25,9 +13,8 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
 @private
     AudioComponentInstance _auHAL;
     AudioBufferList *_inputBufferList;
+    AudioRingBuffer *_ringBuffer;
     Float32 _sampleRate;
-    Float32 *_ringBuffer;
-    NSUInteger _ringBufferOffset;
 }
 
 - (void)initAudioUnit;
@@ -68,8 +55,7 @@ static OSStatus InputRenderProc(void *inRefCon,
         [self initAudioUnit];
         
         // Initialize the ring buffer.
-        _ringBuffer = malloc(kRingBufferByteSize);
-        memset(_ringBuffer, 0, kRingBufferByteSize);
+        _ringBuffer = [[AudioRingBuffer alloc] init];
     }
     return self;
 }
@@ -77,8 +63,8 @@ static OSStatus InputRenderProc(void *inRefCon,
 - (void)dealloc
 {
     AudioComponentInstanceDispose(_auHAL);
-    free(_ringBuffer);
 #if ! __has_feature(objc_arc)
+    [_ringBuffer release];
     [super dealloc];
 #endif
 }
@@ -102,47 +88,6 @@ static OSStatus InputRenderProc(void *inRefCon,
 - (void)stop
 {
     AudioOutputUnitStop(_auHAL);
-}
-
-#pragma mark Waveform retrieval methods
-
-- (void)copyTo:(Float32 *)destination length:(NSUInteger)length
-{
-    // Take a snapshot of the current status.
-    NSUInteger offset = _ringBufferOffset;
-    
-    // We don't care if the status is going to be changed, because there is enough margin.
-
-    if (length <= offset) {
-        // Simply copy a part of the ring buffer.
-        FloatCopy(_ringBuffer + offset - length, destination, length);
-    } else {
-        // Copy the tail and the head of the ring buffer.
-        NSUInteger tail = length - offset;
-        FloatCopy(_ringBuffer + kRingBufferSize - tail, destination, tail);
-        FloatCopy(_ringBuffer, destination + tail, offset);
-    }
-}
-
-- (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
-{
-    // Take a snapshot of the current status.
-    NSUInteger offset = _ringBufferOffset;
-
-    // We don't care if the status is going to be changed, because there is enough margin.
-
-    if (length <= offset) {
-        // Simply copy a part of the ring buffer.
-        DSPSplitComplex dest = { even, odd };
-        vDSP_ctoz((const DSPComplex*)(_ringBuffer + offset - length), 2, &dest, 1, length / 2);
-    } else {
-        // Copy the tail and the head of the ring buffer.
-        NSUInteger tail = length - offset;
-        DSPSplitComplex destTail = { even, odd };
-        DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
-        vDSP_ctoz((const DSPComplex*)(_ringBuffer + kRingBufferSize - tail), 2, &destTail, 1, tail / 2);
-        vDSP_ctoz((const DSPComplex*)_ringBuffer, 2, &destHead, 1, offset / 2);
-    }
 }
 
 #pragma mark Private method
@@ -338,21 +283,7 @@ static OSStatus InputRenderProc(void *inRefCon,
     if (error == noErr) {
         // Use the first channel only.
         AudioBuffer *input = &_inputBufferList->mBuffers[0];
-        Float32 *inputData = input->mData;
-        
-        NSUInteger sampleCount = input->mDataByteSize / sizeof(Float32);
-        NSUInteger bufferRest = kRingBufferSize - _ringBufferOffset;
-        
-        if (sampleCount <= bufferRest) {
-            // Simply copy the input data.
-            FloatCopy(inputData, _ringBuffer + _ringBufferOffset, sampleCount);
-            _ringBufferOffset += sampleCount;
-        } else {
-            // Split the input data into two parts and copy each part.
-            FloatCopy(inputData, _ringBuffer + _ringBufferOffset, bufferRest);
-            FloatCopy(inputData + bufferRest, _ringBuffer, sampleCount - bufferRest);
-            _ringBufferOffset = sampleCount - bufferRest;
-        }
+        [_ringBuffer pushSamples:input->mData count:input->mDataByteSize / sizeof(Float32)];
     }
 }
 

@@ -4,6 +4,7 @@
 
 #import "SpectrumAnalyzer.h"
 #import "AudioInputBuffer.h"
+#import "AudioRingBuffer.h"
 
 // Octave band type definition
 
@@ -128,7 +129,7 @@ static Float32 bandwidthForBands[] = {
     NSUInteger length = _pointNumber / 2;
     
     // Retrieve the waveform.
-    [buffer splitEvenTo:_fftBuffer.realp oddTo:_fftBuffer.imagp totalLength:_pointNumber];
+    [buffer.ringBuffer splitEvenTo:_fftBuffer.realp oddTo:_fftBuffer.imagp totalLength:_pointNumber];
     
     // Apply the window function.
     vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, length);

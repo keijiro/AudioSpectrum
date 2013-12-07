@@ -5,18 +5,19 @@
 #import <Foundation/Foundation.h>
 #import <AudioUnit/AudioUnit.h>
 
+@class AudioRingBuffer;
+
 @interface AudioInputBuffer : NSObject
 
 // Sampling rate.
 @property (readonly) Float32 sampleRate;
 
+// Ring buffer.
+@property (readonly) AudioRingBuffer *ringBuffer;
+
 // Control methods.
 - (void)start;
 - (void)stop;
-
-// Waveform retrieval methods.
-- (void)copyTo:(Float32 *)destination length:(NSUInteger)length;
-- (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length;
 
 // Retrieve the shared instance.
 + (AudioInputBuffer *)sharedInstance;
