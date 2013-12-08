@@ -1,3 +1,7 @@
+// Ring buffer for handling audio samples.
+// by Keijiro Takahashi, 2013
+// https://github.com/keijiro/AudioSpectrum
+
 #import <Accelerate/Accelerate.h>
 #import "AudioRingBuffer.h"
 

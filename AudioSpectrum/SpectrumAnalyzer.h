@@ -5,7 +5,7 @@
 #import <Foundation/Foundation.h>
 #import <Accelerate/Accelerate.h>
 
-@class AudioInputBuffer;
+@class AudioInputHandler;
 
 @interface SpectrumAnalyzer : NSObject
 
@@ -21,7 +21,7 @@
 - (NSUInteger)countBands;
 
 // Process the audio input.
-- (void)calculateWithAudioInputBuffer:(AudioInputBuffer *)buffer;
+- (void)calculateWithAudioInput:(AudioInputHandler *)handler;
 
 // Retrieve the shared instance.
 + (SpectrumAnalyzer *)sharedInstance;

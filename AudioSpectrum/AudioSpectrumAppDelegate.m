@@ -3,14 +3,14 @@
 // https://github.com/keijiro/AudioSpectrum
 
 #import "AudioSpectrumAppDelegate.h"
-#import "AudioInputBuffer.h"
+#import "AudioInputHandler.h"
 #import "SpectrumAnalyzer.h"
 
 @implementation AudioSpectrumAppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    [[AudioInputBuffer sharedInstance] start];
+    [[AudioInputHandler sharedInstance] start];
     
     // Reset to the default settings.
     [self.fftPointPopUp selectItemAtIndex:1];

@@ -4,7 +4,7 @@
 
 #import "SpectrumView.h"
 #import "SpectrumAnalyzer.h"
-#import "AudioInputBuffer.h"
+#import "AudioInputHandler.h"
 #import "AudioRingBuffer.h"
 
 #pragma mark Local functions
@@ -32,8 +32,8 @@ static float ConvertLogScale(float x)
     
     // Update the spectrum.
     SpectrumAnalyzer *analyzer = [SpectrumAnalyzer sharedInstance];
-    AudioInputBuffer *audioInput = [AudioInputBuffer sharedInstance];
-    [analyzer calculateWithAudioInputBuffer:audioInput];
+    AudioInputHandler *audioInput = [AudioInputHandler sharedInstance];
+    [analyzer calculateWithAudioInput:audioInput];
     
     // Draw horizontal lines.
     {

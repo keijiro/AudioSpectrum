@@ -1,11 +1,11 @@
-// Provides a low-latency audio input buffer with the system default device.
+// Handles audio input from the system default device.
 // by Keijiro Takahashi, 2013
 // https://github.com/keijiro/AudioSpectrum
 
 #import <Foundation/Foundation.h>
 #import <AudioUnit/AudioUnit.h>
 
-@interface AudioInputBuffer : NSObject
+@interface AudioInputHandler : NSObject
 
 // Sampling rate.
 @property (readonly) Float32 sampleRate;
@@ -18,6 +18,6 @@
 - (void)stop;
 
 // Retrieve the shared instance.
-+ (AudioInputBuffer *)sharedInstance;
++ (AudioInputHandler *)sharedInstance;
 
 @end

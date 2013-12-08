@@ -3,7 +3,7 @@
 // https://github.com/keijiro/AudioSpectrum
 
 #import "SpectrumAnalyzer.h"
-#import "AudioInputBuffer.h"
+#import "AudioInputHandler.h"
 #import "AudioRingBuffer.h"
 
 // Octave band type definition
@@ -124,16 +124,16 @@ static Float32 bandwidthForBands[] = {
 
 #pragma mark Instance method
 
-- (void)calculateWithAudioInputBuffer:(AudioInputBuffer *)buffer
+- (void)calculateWithAudioInput:(AudioInputHandler *)input
 {
     NSUInteger length = _pointNumber / 2;
     
     {
         // Retrieve waveforms from channels and average these.
         Float32 tempBuffer[_pointNumber];
-        [buffer.ringBuffers.firstObject copyTo:tempBuffer length:_pointNumber];
-        for (NSUInteger i = 1; i < buffer.ringBuffers.count; i++) {
-            [buffer.ringBuffers[i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
+        [input.ringBuffers.firstObject copyTo:tempBuffer length:_pointNumber];
+        for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
+            [input.ringBuffers[i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
         }
         
         // Split the waveform.
@@ -168,7 +168,7 @@ static Float32 bandwidthForBands[] = {
     const Float32 *middleFreqs = middleFrequenciesForBands[_bandType];
     Float32 bandWidth = bandwidthForBands[_bandType];
     
-    Float32 freqToIndexCoeff = _pointNumber / buffer.sampleRate;
+    Float32 freqToIndexCoeff = _pointNumber / input.sampleRate;
     int maxIndex = (int)_pointNumber / 2 - 1;
     
     for (NSUInteger band = 0; band < bandCount; band++) {

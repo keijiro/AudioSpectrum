@@ -1,14 +1,14 @@
-// Provides a low-latency audio input buffer with the system default device.
+// Handles audio input from the system default device.
 // by Keijiro Takahashi, 2013
 // https://github.com/keijiro/AudioSpectrum
 
-#import "AudioInputBuffer.h"
+#import "AudioInputHandler.h"
 #import "AudioRingBuffer.h"
 #import <CoreAudio/CoreAudio.h>
 
 #pragma mark Private method definition
 
-@interface AudioInputBuffer ()
+@interface AudioInputHandler ()
 {
 @private
     AudioComponentInstance _auHAL;
@@ -34,7 +34,7 @@ static OSStatus InputRenderProc(void *inRefCon,
                                 UInt32 inNumberFrame,
                                 AudioBufferList *ioData)
 {
-    AudioInputBuffer* owner = (__bridge AudioInputBuffer *)(inRefCon);
+    AudioInputHandler* owner = (__bridge AudioInputHandler *)(inRefCon);
     [owner inputCallback:ioActionFlags
              inTimeStamp:inTimeStamp
              inBusNumber:inBusNumber
@@ -44,7 +44,7 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 #pragma mark
 
-@implementation AudioInputBuffer
+@implementation AudioInputHandler
 
 #pragma mark Constructor / destructor
 
@@ -299,12 +299,12 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 #pragma mark Static method
 
-+ (AudioInputBuffer *)sharedInstance
++ (AudioInputHandler *)sharedInstance
 {
-    static AudioInputBuffer *instance;
+    static AudioInputHandler *instance;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [[AudioInputBuffer alloc] init];
+        instance = [[AudioInputHandler alloc] init];
     });
     return instance;
 }
