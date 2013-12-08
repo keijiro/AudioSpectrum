@@ -7,15 +7,18 @@
 #import "AudioInputBuffer.h"
 #import "AudioRingBuffer.h"
 
-@implementation SpectrumView
+#pragma mark Local functions
 
-- (id)initWithFrame:(NSRect)frame
+#define MIN_DB (-60.0f)
+
+static float ConvertLogScale(float x)
 {
-    self = [super initWithFrame:frame];
-    if (self) {
-    }
-    return self;
+    return -log10f(0.1f + x / (MIN_DB * 1.1f));
 }
+
+#pragma mark Class implementation
+
+@implementation SpectrumView
 
 - (void)drawRect:(NSRect)dirtyRect
 {
@@ -31,6 +34,21 @@
     SpectrumAnalyzer *analyzer = [SpectrumAnalyzer sharedInstance];
     AudioInputBuffer *audioInput = [AudioInputBuffer sharedInstance];
     [analyzer calculateWithAudioInputBuffer:audioInput];
+    
+    // Draw horizontal lines.
+    {
+        NSBezierPath *path = [NSBezierPath bezierPath];
+        
+        for (float lv = -3.0f; lv > MIN_DB; lv -= 3.0f) {
+            float y = ConvertLogScale(lv) * size.height;
+            [path moveToPoint:NSMakePoint(0, y)];
+            [path lineToPoint:NSMakePoint(size.width, y)];
+        }
+        
+        [[NSColor colorWithWhite:0.5f alpha:1.0f] setStroke];
+        [path setLineWidth:0.5f];
+        [path stroke];
+    }
     
     // Draw the input waveform graph.
     {
@@ -58,19 +76,28 @@
     
     // Draw the level meter.
     {
+        float zeroOffset = 1.5849e-13;
+        float refLevel = 0.70710678118f; // 1/sqrt(2)
+
+        NSColor *red = [NSColor colorWithHue:0.0f saturation:0.8f brightness:1.0f alpha:1.0f];
+        NSColor *yellow = [NSColor colorWithHue:0.12f saturation:0.8f brightness:1.0f alpha:1.0f];
+        NSColor *green = [NSColor colorWithHue:0.4f saturation:0.8f brightness:1.0f alpha:1.0f];
+        
         int sampleCount = audioInput.sampleRate / 60; // 60 fps
         NSUInteger channels = audioInput.ringBuffers.count;
         
         for (int i = 0; i < channels; i++)
         {
             float rms = [audioInput.ringBuffers[i] calculateRMS:sampleCount];
-            float db = 20.0f * log10f(rms);
-            float y = (1.0f + 0.01f * db) * size.height;
-            
-            if (db > -3.0f) {
-                [[NSColor colorWithHue:0.0f saturation:0.8f brightness:1.0f alpha:1.0f] setFill];
+            float db = 20.0f * log10f(rms / refLevel + zeroOffset);
+            float y = ConvertLogScale(db) * size.height;
+
+            if (db >= 0.0f) {
+                [red setFill];
+            } else if (db > -3.0f) {
+                [yellow setFill];
             } else {
-                [[NSColor colorWithHue:0.4f saturation:0.8f brightness:1.0f alpha:1.0f] setFill];
+                [green setFill];
             }
             
             NSRectFill(NSMakeRect((0.5f + i) * size.width / channels, 0, 12, y));
@@ -89,7 +116,7 @@
         
         for (int i = 0; i < bandCount; i++) {
             float x = (0.5f + i)  * barInterval;
-            float y = (1.0f + 0.01f * bandLevels[i]) * size.height;
+            float y = ConvertLogScale(bandLevels[i]) * size.height;
             NSRectFill(NSMakeRect(x - 0.5f * barWidth, 0, barWidth, y));
         }
     }
@@ -104,7 +131,7 @@
 
         for (int i = 1; i < spectrumCount; i++) {
             float x = log10f(i) * xScale;
-            float y = (1.0f + 0.01f * spectrum[i]) * size.height;
+            float y = ConvertLogScale(spectrum[i]) * size.height;
             if (i == 1) {
                 [path moveToPoint:NSMakePoint(x, y)];
             } else {

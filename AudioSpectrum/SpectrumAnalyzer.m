@@ -108,7 +108,7 @@ static Float32 bandwidthForBands[] = {
         _window = calloc(_pointNumber, sizeof(Float32));
         vDSP_blkman_window(_window, number, 0);
         
-        Float32 normFactor = 0.5f / number;
+        Float32 normFactor = 2.0f / number;
         vDSP_vsmul(_window, 1, &normFactor, _window, 1, number);
         
         _spectrum = calloc(_pointNumber / 2, sizeof(Float32));
@@ -159,7 +159,7 @@ static Float32 bandwidthForBands[] = {
     vDSP_vsadd(_spectrum, 1, &kZeroOffset, _spectrum, 1, length);
 
     // Convert power to decibel.
-    float kZeroDB = 1;
+    float kZeroDB = 0.70710678118f; // 1/sqrt(2)
     vDSP_vdbcon(_spectrum, 1, &kZeroDB, _spectrum, 1, length, 0);
 
     // Calculate the band levels.
