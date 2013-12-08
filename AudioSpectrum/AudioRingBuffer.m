@@ -51,16 +51,16 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length
 {
-    // Take a snapshot of the current status for avoiding race conditions.
+    // Take a snapshot of the current state for avoiding race conditions.
     NSUInteger offset = _offset;
     
-    // We don't care if the status is going to be changed, because there is enough margin.
+    // We don't care if the state is going to be changed, because there is enough margin.
     
     if (length <= offset) {
-        // Simply copy a part of the ring buffer.
+        // Simply process a part of the ring buffer.
         FloatCopy(_samples + offset - length, destination, length);
     } else {
-        // Copy the tail and the head of the ring buffer.
+        // Process the tail and the head of the ring buffer.
         NSUInteger tail = length - offset;
         FloatCopy(_samples + kBufferSize - tail, destination, tail);
         FloatCopy(_samples, destination + tail, offset);
@@ -69,60 +69,82 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
 
 - (void)addTo:(Float32 *)destination length:(NSUInteger)length
 {
-    // Take a snapshot of the current status for avoiding race conditions.
+    // Take a snapshot of the current state for avoiding race conditions.
     NSUInteger offset = _offset;
     
-    // We don't care if the status is going to be changed, because there is enough margin.
+    // We don't care if the state is going to be changed, because there is enough margin.
     
     if (length <= offset) {
-        // Simply copy a part of the ring buffer.
+        // Simply process a part of the ring buffer.
         vDSP_vadd(_samples + offset - length, 1, destination, 1, destination, 1, length);
     } else {
-        // Copy the tail and the head of the ring buffer.
+        // Process the tail and the head of the ring buffer.
         NSUInteger tail = length - offset;
         vDSP_vadd(_samples + kBufferSize - tail, 1, destination, 1, destination, 1, tail);
         vDSP_vadd(_samples, 1, destination + tail, 1, destination + tail, 1, offset);
     }
 }
 
-- (void)averageTo:(Float32 *)destination index:(NSUInteger)index length:(NSUInteger)length
+- (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
 {
-    float scalar = index;
-
-    // Take a snapshot of the current status for avoiding race conditions.
+    // Take a snapshot of the current state for avoiding race conditions.
     NSUInteger offset = _offset;
     
-    // We don't care if the status is going to be changed, because there is enough margin.
+    // We don't care if the state is going to be changed, because there is enough margin.
     
     if (length <= offset) {
-        // Simply copy a part of the ring buffer.
+        // Simply process a part of the ring buffer.
+        DSPSplitComplex dest = { even, odd };
+        vDSP_ctoz((const DSPComplex*)(_samples + offset - length), 2, &dest, 1, length / 2);
+    } else {
+        // Process the tail and the head of the ring buffer.
+        NSUInteger tail = length - offset;
+        DSPSplitComplex destTail = { even, odd };
+        DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
+        vDSP_ctoz((const DSPComplex*)(_samples + kBufferSize - tail), 2, &destTail, 1, tail / 2);
+        vDSP_ctoz((const DSPComplex*)_samples, 2, &destHead, 1, offset / 2);
+    }
+}
+
+- (void)vectorAverageWith:(Float32 *)destination index:(NSUInteger)index length:(NSUInteger)length
+{
+    float scalar = index;
+    
+    // Take a snapshot of the current state for avoiding race conditions.
+    NSUInteger offset = _offset;
+    
+    // We don't care if the state is going to be changed, because there is enough margin.
+    
+    if (length <= offset) {
+        // Simply process a part of the ring buffer.
         vDSP_vavlin(_samples + offset - length, 1, &scalar, destination, 1, length);
     } else {
-        // Copy the tail and the head of the ring buffer.
+        // Process the tail and the head of the ring buffer.
         NSUInteger tail = length - offset;
         vDSP_vavlin(_samples + kBufferSize - tail, 1, &scalar, destination, 1, tail);
         vDSP_vavlin(_samples, 1, &scalar, destination + tail, 1, offset);
     }
 }
 
-- (void)splitEvenTo:(Float32 *)even oddTo:(Float32 *)odd totalLength:(NSUInteger)length
+- (float)calculateRMS:(NSUInteger)length
 {
-    // Take a snapshot of the current status for avoiding race conditions.
+    // Take a snapshot of the current state for avoiding race conditions.
     NSUInteger offset = _offset;
     
-    // We don't care if the status is going to be changed, because there is enough margin.
+    // We don't care if the state is going to be changed, because there is enough margin.
     
     if (length <= offset) {
-        // Simply copy a part of the ring buffer.
-        DSPSplitComplex dest = { even, odd };
-        vDSP_ctoz((const DSPComplex*)(_samples + offset - length), 2, &dest, 1, length / 2);
+        // Simply process a part of the ring buffer.
+        float rms;
+        vDSP_rmsqv(_samples + offset - length, 1, &rms, length);
+        return rms;
     } else {
-        // Copy the tail and the head of the ring buffer.
+        // Process the tail and the head of the ring buffer.
+        float msq1, msq2;
         NSUInteger tail = length - offset;
-        DSPSplitComplex destTail = { even, odd };
-        DSPSplitComplex destHead = { even + tail / 2, odd + tail / 2 };
-        vDSP_ctoz((const DSPComplex*)(_samples + kBufferSize - tail), 2, &destTail, 1, tail / 2);
-        vDSP_ctoz((const DSPComplex*)_samples, 2, &destHead, 1, offset / 2);
+        vDSP_measqv(_samples + kBufferSize - tail, 1, &msq1, tail);
+        vDSP_measqv(_samples, 1, &msq2, offset);
+        return sqrtf((msq1 * tail + msq2 * offset) / length);
     }
 }
 

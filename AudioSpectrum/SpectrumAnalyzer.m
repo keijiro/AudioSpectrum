@@ -133,7 +133,7 @@ static Float32 bandwidthForBands[] = {
         Float32 tempBuffer[_pointNumber];
         [buffer.ringBuffers.firstObject copyTo:tempBuffer length:_pointNumber];
         for (NSUInteger i = 1; i < buffer.ringBuffers.count; i++) {
-            [buffer.ringBuffers[i] averageTo:tempBuffer index:i length:_pointNumber];
+            [buffer.ringBuffers[i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
         }
         
         // Split the waveform.

@@ -29,7 +29,53 @@
     
     // Update the spectrum.
     SpectrumAnalyzer *analyzer = [SpectrumAnalyzer sharedInstance];
-    [analyzer calculateWithAudioInputBuffer:[AudioInputBuffer sharedInstance]];
+    AudioInputBuffer *audioInput = [AudioInputBuffer sharedInstance];
+    [analyzer calculateWithAudioInputBuffer:audioInput];
+    
+    // Draw the input waveform graph.
+    {
+        int waveformLength = (int)analyzer.pointNumber;
+        float waveform[waveformLength];
+        [audioInput.ringBuffers.firstObject copyTo:waveform length:waveformLength];
+        
+        NSBezierPath *path = [NSBezierPath bezierPath];
+        float xScale = size.width / waveformLength;
+        
+        for (int i = 0; i < waveformLength; i++) {
+            float x = xScale * i;
+            float y = (waveform[i] * 0.5f + 0.5f) * size.height;
+            if (i == 0) {
+                [path moveToPoint:NSMakePoint(x, y)];
+            } else {
+                [path lineToPoint:NSMakePoint(x, y)];
+            }
+        }
+        
+        [[NSColor colorWithWhite:0.5f alpha:1.0f] setStroke];
+        [path setLineWidth:0.5f];
+        [path stroke];
+    }
+    
+    // Draw the level meter.
+    {
+        int sampleCount = audioInput.sampleRate / 60; // 60 fps
+        NSUInteger channels = audioInput.ringBuffers.count;
+        
+        for (int i = 0; i < channels; i++)
+        {
+            float rms = [audioInput.ringBuffers[i] calculateRMS:sampleCount];
+            float db = 20.0f * log10f(rms);
+            float y = (1.0f + 0.01f * db) * size.height;
+            
+            if (db > -3.0f) {
+                [[NSColor colorWithHue:0.0f saturation:0.8f brightness:1.0f alpha:1.0f] setFill];
+            } else {
+                [[NSColor colorWithHue:0.4f saturation:0.8f brightness:1.0f alpha:1.0f] setFill];
+            }
+            
+            NSRectFill(NSMakeRect((0.5f + i) * size.width / channels, 0, 12, y));
+        }
+    }
 
     // Draw the octave band graph.
     {
@@ -67,30 +113,6 @@
         }
         
         [[NSColor blueColor] setStroke];
-        [path setLineWidth:0.5f];
-        [path stroke];
-    }
-    
-    // Draw the input waveform graph.
-    {
-        int waveformLength = (int)analyzer.pointNumber;
-        float waveform[waveformLength];
-        [[AudioInputBuffer sharedInstance].ringBuffers.firstObject copyTo:waveform length:waveformLength];
-        
-        NSBezierPath *path = [NSBezierPath bezierPath];
-        float xScale = size.width / waveformLength;
-        
-        for (int i = 0; i < waveformLength; i++) {
-            float x = xScale * i;
-            float y = (waveform[i] * 0.5f + 0.5f) * size.height;
-            if (i == 0) {
-                [path moveToPoint:NSMakePoint(x, y)];
-            } else {
-                [path lineToPoint:NSMakePoint(x, y)];
-            }
-        }
-        
-        [[NSColor blackColor] setStroke];
         [path setLineWidth:0.5f];
         [path stroke];
     }
