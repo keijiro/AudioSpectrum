@@ -69,6 +69,7 @@ static Float32 bandwidthForBands[] = {
         vDSP_destroy_fftsetup(_fftSetup);
         free(_fftBuffer.realp);
         free(_fftBuffer.imagp);
+        free(_inputBuffer);
         free(_window);
         free(_spectrum);
     }
@@ -83,6 +84,8 @@ static Float32 bandwidthForBands[] = {
         
         _fftBuffer.realp = calloc(_pointNumber / 2, sizeof(Float32));
         _fftBuffer.imagp = calloc(_pointNumber / 2, sizeof(Float32));
+        
+        _inputBuffer = calloc(_pointNumber, sizeof(Float32));
         
         _window = calloc(_pointNumber, sizeof(Float32));
         vDSP_blkman_window(_window, number, 0);
@@ -107,18 +110,15 @@ static Float32 bandwidthForBands[] = {
 {
     NSUInteger length = _pointNumber / 2;
     
-    {
-        // Retrieve waveforms from channels and average these.
-        Float32 tempBuffer[_pointNumber];
-        [input.ringBuffers.firstObject copyTo:tempBuffer length:_pointNumber];
-        for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
-            [[input.ringBuffers objectAtIndex:i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
-        }
-        
-        // Split the waveform.
-        DSPSplitComplex dest = { _fftBuffer.realp, _fftBuffer.imagp };
-        vDSP_ctoz((const DSPComplex*)tempBuffer, 2, &dest, 1, length);
+    // Retrieve waveforms from channels and average these.
+    [input.ringBuffers.firstObject copyTo:_inputBuffer length:_pointNumber];
+    for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
+        [[input.ringBuffers objectAtIndex:i] vectorAverageWith:_inputBuffer index:i length:_pointNumber];
     }
+    
+    // Split the waveform.
+    DSPSplitComplex dest = { _fftBuffer.realp, _fftBuffer.imagp };
+    vDSP_ctoz((const DSPComplex*)_inputBuffer, 2, &dest, 1, length);
     
     // Apply the window function.
     vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, length);

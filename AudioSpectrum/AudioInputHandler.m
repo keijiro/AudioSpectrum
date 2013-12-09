@@ -39,6 +39,11 @@ static OSStatus InputRenderProc(void *inRefCon,
 
 @implementation AudioInputHandler
 
+#if ! __has_feature(objc_arc)
+@synthesize sampleRate = _sampleRate;
+@synthesize ringBuffers = _ringBuffers;
+#endif
+
 #pragma mark Constructor / destructor
 
 - (id)init
@@ -57,18 +62,6 @@ static OSStatus InputRenderProc(void *inRefCon,
     [_ringBuffers release];
     [super dealloc];
 #endif
-}
-
-#pragma mark Property accessor
-
-- (Float32)sampleRate
-{
-    return _sampleRate;
-}
-
-- (NSArray *)ringBuffers
-{
-    return _ringBuffers;
 }
 
 #pragma mark Control methods
@@ -251,6 +244,9 @@ static OSStatus InputRenderProc(void *inRefCon,
     }
     
     _ringBuffers = [NSArray arrayWithObjects:buffers count:channels];
+#if ! __has_feature(objc_arc)
+    [_ringBuffers retain];
+#endif
     
     //
     // Set up the input callback.

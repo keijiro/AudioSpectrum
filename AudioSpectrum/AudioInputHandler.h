@@ -15,10 +15,10 @@
 }
 
 // Sampling rate.
-@property (readonly) Float32 sampleRate;
+@property (nonatomic, readonly) Float32 sampleRate;
 
 // Ring buffer array.
-@property (readonly) NSArray *ringBuffers;
+@property (nonatomic, readonly) NSArray *ringBuffers;
 
 // Control methods.
 - (void)start;

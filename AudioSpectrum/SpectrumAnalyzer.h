@@ -20,6 +20,7 @@
     // FFT objects.
     FFTSetup _fftSetup;
     DSPSplitComplex _fftBuffer;
+    Float32 *_inputBuffer;
     Float32 *_window;
     
     // Spectrum data.
