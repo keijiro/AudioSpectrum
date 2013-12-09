@@ -6,6 +6,13 @@
 #import <AudioUnit/AudioUnit.h>
 
 @interface AudioInputHandler : NSObject
+{
+@private
+    AudioComponentInstance _auHAL;
+    AudioBufferList *_inputBufferList;
+    NSArray *_ringBuffers;
+    Float32 _sampleRate;
+}
 
 // Sampling rate.
 @property (readonly) Float32 sampleRate;

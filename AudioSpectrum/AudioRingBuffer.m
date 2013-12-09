@@ -17,16 +17,6 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
     memcpy(destination, source, length * sizeof(Float32));
 }
 
-#pragma mark Private method definition
-
-@interface AudioRingBuffer ()
-{
-@private
-    Float32 *_samples;
-    NSUInteger _offset;
-}
-@end
-
 #pragma mark
 
 @implementation AudioRingBuffer

@@ -9,13 +9,6 @@
 #pragma mark Private method definition
 
 @interface AudioInputHandler ()
-{
-@private
-    AudioComponentInstance _auHAL;
-    AudioBufferList *_inputBufferList;
-    NSArray *_ringBuffers;
-    Float32 _sampleRate;
-}
 
 - (void)initAudioUnit;
 - (void)inputCallback:(AudioUnitRenderActionFlags *)ioActionFlags
@@ -73,12 +66,17 @@ static OSStatus InputRenderProc(void *inRefCon,
     return _sampleRate;
 }
 
+- (NSArray *)ringBuffers
+{
+    return _ringBuffers;
+}
+
 #pragma mark Control methods
 
 - (void)start
 {
     OSStatus error = AudioOutputUnitStart(_auHAL);
-    NSAssert(error == noErr, @"Failed to start the AUHAL (%d).", error);
+    NSAssert(error == noErr, @"Failed to start the AUHAL (%d).", (int)error);
     (void)error; // To avoid warning.
 }
 
@@ -292,7 +290,7 @@ static OSStatus InputRenderProc(void *inRefCon,
     if (error == noErr) {
         for (UInt32 i = 0; i < _inputBufferList->mNumberBuffers; i++) {
             AudioBuffer *input = &_inputBufferList->mBuffers[i];
-            [_ringBuffers[i]  pushSamples:input->mData count:input->mDataByteSize / sizeof(Float32)];
+            [[_ringBuffers objectAtIndex:i]  pushSamples:input->mData count:input->mDataByteSize / sizeof(Float32)];
         }
     }
 }

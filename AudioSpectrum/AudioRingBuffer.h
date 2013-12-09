@@ -5,6 +5,11 @@
 #import <Foundation/Foundation.h>
 
 @interface AudioRingBuffer : NSObject
+{
+@private
+    Float32 *_samples;
+    NSUInteger _offset;
+}
 
 - (void)copyTo:(Float32 *)destination length:(NSUInteger)length;
 - (void)addTo:(Float32 *)destination length:(NSUInteger)length;

@@ -26,27 +26,6 @@ static Float32 bandwidthForBands[] = {
     1.12246204831f  // 2^(1/6)
 };
 
-@interface SpectrumAnalyzer ()
-{
-@private
-    // FFT data point number.
-    NSUInteger _pointNumber;
-    NSUInteger _logPointNumber;
-    
-    // Octave band type.
-    NSUInteger _bandType;
-    
-    // FFT objects.
-    FFTSetup _fftSetup;
-    DSPSplitComplex _fftBuffer;
-    Float32 *_window;
-    
-    // Spectrum data.
-    Float32 *_spectrum;
-    Float32 *_bandLevels;
-}
-@end
-
 @implementation SpectrumAnalyzer
 
 #if ! __has_feature(objc_arc)
@@ -133,7 +112,7 @@ static Float32 bandwidthForBands[] = {
         Float32 tempBuffer[_pointNumber];
         [input.ringBuffers.firstObject copyTo:tempBuffer length:_pointNumber];
         for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
-            [input.ringBuffers[i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
+            [[input.ringBuffers objectAtIndex:i] vectorAverageWith:tempBuffer index:i length:_pointNumber];
         }
         
         // Split the waveform.
