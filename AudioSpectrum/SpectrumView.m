@@ -33,7 +33,7 @@ static float ConvertLogScale(float x)
     // Update the spectrum.
     SpectrumAnalyzer *analyzer = [SpectrumAnalyzer sharedInstance];
     AudioInputHandler *audioInput = [AudioInputHandler sharedInstance];
-    [analyzer calculateWithAudioInput:audioInput];
+    [analyzer processAudioInput:audioInput];
     
     // Draw horizontal lines.
     {

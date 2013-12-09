@@ -106,15 +106,40 @@ static Float32 bandwidthForBands[] = {
 
 #pragma mark Instance method
 
-- (void)calculateWithAudioInput:(AudioInputHandler *)input
+- (void)processAudioInput:(AudioInputHandler *)input channel:(NSUInteger)channel
 {
-    NSUInteger length = _pointNumber / 2;
+    // Retrieve a waveform from the specified channel.
+    [[input.ringBuffers objectAtIndex:channel] copyTo:_inputBuffer length:_pointNumber];
     
+    // Do FFT.
+    [self calculateWithInputBuffer:input.sampleRate];
+}
+
+- (void)processAudioInput:(AudioInputHandler *)input channel1:(NSUInteger)channel1 channel2:(NSUInteger)channel2
+{
+    // Retrieve waveforms from the specified channel.
+    [[input.ringBuffers objectAtIndex:channel1] copyTo:_inputBuffer length:_pointNumber];
+    [[input.ringBuffers objectAtIndex:channel2] vectorAverageWith:_inputBuffer index:1 length:_pointNumber];
+    
+    // Do FFT.
+    [self calculateWithInputBuffer:input.sampleRate];
+}
+
+- (void)processAudioInput:(AudioInputHandler *)input
+{
     // Retrieve waveforms from channels and average these.
     [input.ringBuffers.firstObject copyTo:_inputBuffer length:_pointNumber];
     for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
         [[input.ringBuffers objectAtIndex:i] vectorAverageWith:_inputBuffer index:i length:_pointNumber];
     }
+    
+    // Do FFT.
+    [self calculateWithInputBuffer:input.sampleRate];
+}
+
+- (void)calculateWithInputBuffer:(float)sampleRate
+{
+    NSUInteger length = _pointNumber / 2;
     
     // Split the waveform.
     DSPSplitComplex dest = { _fftBuffer.realp, _fftBuffer.imagp };
@@ -147,7 +172,7 @@ static Float32 bandwidthForBands[] = {
     const Float32 *middleFreqs = middleFrequenciesForBands[_bandType];
     Float32 bandWidth = bandwidthForBands[_bandType];
     
-    Float32 freqToIndexCoeff = _pointNumber / input.sampleRate;
+    Float32 freqToIndexCoeff = _pointNumber / sampleRate;
     int maxIndex = (int)_pointNumber / 2 - 1;
     
     for (NSUInteger band = 0; band < bandCount; band++) {
