@@ -181,6 +181,10 @@
         </window>
         <customObject id="494" customClass="AudioSpectrumAppDelegate">
             <connections>
+                <outlet property="_bandTypePopUp" destination="dnj-oj-JLC" id="wB5-Ut-TkD"/>
+                <outlet property="_fftPointPopUp" destination="N9s-ew-hlW" id="um9-Ts-ZvT"/>
+                <outlet property="_spectrumView" destination="n6B-vi-34S" id="dkc-Rm-1SB"/>
+                <outlet property="_window" destination="371" id="i1j-F5-hwg"/>
                 <outlet property="bandTypePopUp" destination="dnj-oj-JLC" id="cXc-0s-GXq"/>
                 <outlet property="fftPointPopUp" destination="N9s-ew-hlW" id="vGF-XD-WfS"/>
                 <outlet property="spectrumView" destination="n6B-vi-34S" id="bsY-Po-YqY"/>

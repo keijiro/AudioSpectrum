@@ -1,15 +1,10 @@
-// Application delegate.
-// by Keijiro Takahashi, 2013
+// AudioSpectrum: An example for Audio Unit and vDSP
+// By Keijiro Takahashi, 2013, 2014
 // https://github.com/keijiro/AudioSpectrum
 
 #import <Cocoa/Cocoa.h>
 
 @interface AudioSpectrumAppDelegate : NSObject <NSApplicationDelegate>
-
-@property (assign) IBOutlet NSWindow *window;
-@property (assign) IBOutlet NSView *spectrumView;
-@property (assign) IBOutlet NSPopUpButton *fftPointPopUp;
-@property (assign) IBOutlet NSPopUpButton *bandTypePopUp;
 
 - (IBAction)updateConfiguration:(id)sender;
 
