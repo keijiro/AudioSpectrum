@@ -51,6 +51,7 @@ static Float32 bandwidthForBands[] = {
 - (void)dealloc
 {
     self.pointNumber = 0;
+    vDSP_DFT_DestroySetup(_dftSetup);
     free(_bandLevels);
 #if ! __has_feature(objc_arc)
     [super dealloc];
@@ -66,7 +67,6 @@ static Float32 bandwidthForBands[] = {
     
     // Free the objects if already initialized.
     if (_pointNumber != 0) {
-        vDSP_destroy_fftsetup(_fftSetup);
         free(_fftBuffer.realp);
         free(_fftBuffer.imagp);
         free(_inputBuffer);
@@ -80,7 +80,7 @@ static Float32 bandwidthForBands[] = {
     
     if (number > 0) {
         // Allocate the objects and the arrays.
-        _fftSetup = vDSP_create_fftsetup(_logPointNumber, FFT_RADIX2);
+        _dftSetup = vDSP_DFT_zrop_CreateSetup(_dftSetup, _pointNumber, vDSP_DFT_FORWARD);
         
         _fftBuffer.realp = calloc(_pointNumber / 2, sizeof(Float32));
         _fftBuffer.imagp = calloc(_pointNumber / 2, sizeof(Float32));
@@ -148,9 +148,9 @@ static Float32 bandwidthForBands[] = {
     // Apply the window function.
     vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, length);
     vDSP_vmul(_fftBuffer.imagp, 1, _window + 1, 2, _fftBuffer.imagp, 1, length);
-    
+
     // FFT.
-    vDSP_fft_zrip(_fftSetup, &_fftBuffer, 1, _logPointNumber, FFT_FORWARD);
+    vDSP_DFT_Execute(_dftSetup, _fftBuffer.realp, _fftBuffer.imagp, _fftBuffer.realp, _fftBuffer.imagp);
     
     // Zero out the nyquist value.
     _fftBuffer.imagp[0] = 0;

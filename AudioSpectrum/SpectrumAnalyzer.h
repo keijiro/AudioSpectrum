@@ -18,7 +18,7 @@
     NSUInteger _bandType;
     
     // FFT objects.
-    FFTSetup _fftSetup;
+    vDSP_DFT_Setup _dftSetup;
     DSPSplitComplex _fftBuffer;
     Float32 *_inputBuffer;
     Float32 *_window;
