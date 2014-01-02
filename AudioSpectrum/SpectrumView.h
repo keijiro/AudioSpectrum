@@ -1,5 +1,5 @@
-// Custom view for displaying a spectrum.
-// by Keijiro Takahashi, 2013
+// AudioSpectrum: A sample app using Audio Unit and vDSP
+// By Keijiro Takahashi, 2013, 2014
 // https://github.com/keijiro/AudioSpectrum
 
 #import <Cocoa/Cocoa.h>
