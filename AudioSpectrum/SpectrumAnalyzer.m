@@ -31,8 +31,6 @@ static Float32 bandwidthForBands[] = {
 #if ! __has_feature(objc_arc)
 @synthesize pointNumber = _pointNumber;
 @synthesize bandType = _bandType;
-@synthesize spectrum = _spectrum;
-@synthesize bandLevels = _bandLevels;
 #endif
 
 #pragma mark Constructor / Destructor
@@ -41,7 +39,6 @@ static Float32 bandwidthForBands[] = {
 {
     self = [super init];
     if (self) {
-        _bandLevels = calloc(32, sizeof(Float32));
         self.pointNumber = 1024;
         self.bandType = 3;
     }
@@ -52,13 +49,22 @@ static Float32 bandwidthForBands[] = {
 {
     self.pointNumber = 0;
     vDSP_DFT_DestroySetup(_dftSetup);
-    free(_bandLevels);
 #if ! __has_feature(objc_arc)
     [super dealloc];
 #endif
 }
 
 #pragma mark Custom accessors
+
+- (const Float32 *)spectrum
+{
+    return _spectrum;
+}
+
+- (const Float32 *)bandLevels
+{
+    return _bandLevels;
+}
 
 - (void)setPointNumber:(NSUInteger)number
 {
@@ -67,8 +73,8 @@ static Float32 bandwidthForBands[] = {
     
     // Free the objects if already initialized.
     if (_pointNumber != 0) {
-        free(_fftBuffer.realp);
-        free(_fftBuffer.imagp);
+        free(_dftBuffer.realp);
+        free(_dftBuffer.imagp);
         free(_inputBuffer);
         free(_window);
         free(_spectrum);
@@ -82,8 +88,8 @@ static Float32 bandwidthForBands[] = {
         // Allocate the objects and the arrays.
         _dftSetup = vDSP_DFT_zrop_CreateSetup(_dftSetup, _pointNumber, vDSP_DFT_FORWARD);
         
-        _fftBuffer.realp = calloc(_pointNumber / 2, sizeof(Float32));
-        _fftBuffer.imagp = calloc(_pointNumber / 2, sizeof(Float32));
+        _dftBuffer.realp = calloc(_pointNumber / 2, sizeof(Float32));
+        _dftBuffer.imagp = calloc(_pointNumber / 2, sizeof(Float32));
         
         _inputBuffer = calloc(_pointNumber, sizeof(Float32));
         
@@ -142,21 +148,21 @@ static Float32 bandwidthForBands[] = {
     NSUInteger length = _pointNumber / 2;
     
     // Split the waveform.
-    DSPSplitComplex dest = { _fftBuffer.realp, _fftBuffer.imagp };
+    DSPSplitComplex dest = { _dftBuffer.realp, _dftBuffer.imagp };
     vDSP_ctoz((const DSPComplex*)_inputBuffer, 2, &dest, 1, length);
     
     // Apply the window function.
-    vDSP_vmul(_fftBuffer.realp, 1, _window, 2, _fftBuffer.realp, 1, length);
-    vDSP_vmul(_fftBuffer.imagp, 1, _window + 1, 2, _fftBuffer.imagp, 1, length);
+    vDSP_vmul(_dftBuffer.realp, 1, _window, 2, _dftBuffer.realp, 1, length);
+    vDSP_vmul(_dftBuffer.imagp, 1, _window + 1, 2, _dftBuffer.imagp, 1, length);
 
     // FFT.
-    vDSP_DFT_Execute(_dftSetup, _fftBuffer.realp, _fftBuffer.imagp, _fftBuffer.realp, _fftBuffer.imagp);
+    vDSP_DFT_Execute(_dftSetup, _dftBuffer.realp, _dftBuffer.imagp, _dftBuffer.realp, _dftBuffer.imagp);
     
     // Zero out the nyquist value.
-    _fftBuffer.imagp[0] = 0;
+    _dftBuffer.imagp[0] = 0;
     
     // Calculate power spectrum.
-    vDSP_zvmags(&_fftBuffer, 1, _spectrum, 1, length);
+    vDSP_zvmags(&_dftBuffer, 1, _spectrum, 1, length);
     
     // Add -128db offset to avoid log(0).
     float kZeroOffset = 1.5849e-13;

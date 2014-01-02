@@ -17,15 +17,15 @@
     // Octave band type.
     NSUInteger _bandType;
     
-    // FFT objects.
+    // DFT objects.
     vDSP_DFT_Setup _dftSetup;
-    DSPSplitComplex _fftBuffer;
+    DSPSplitComplex _dftBuffer;
     Float32 *_inputBuffer;
     Float32 *_window;
     
     // Spectrum data.
     Float32 *_spectrum;
-    Float32 *_bandLevels;
+    Float32 _bandLevels[32];
 }
 
 // Configuration.
