@@ -26,6 +26,16 @@ static float ConvertLogScale(float x)
 
 @implementation SpectrumView
 
+- (void)awakeFromNib
+{
+    [NSTimer scheduledTimerWithTimeInterval:(1.0f / 60) target:self selector:@selector(refresh) userInfo:nil repeats:YES];
+}
+
+- (void)refresh
+{
+    self.needsDisplay = YES;
+}
+
 - (void)drawRect:(NSRect)dirtyRect
 {
 	[super drawRect:dirtyRect];

@@ -1,4 +1,4 @@
-// AudioSpectrum: An example for Audio Unit and vDSP
+// AudioSpectrum: A sample app using Audio Unit and vDSP
 // By Keijiro Takahashi, 2013, 2014
 // https://github.com/keijiro/AudioSpectrum
 

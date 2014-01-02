@@ -182,14 +182,7 @@
                 </defaultToolbarItems>
             </toolbar>
         </window>
-        <customObject id="494" customClass="AudioSpectrumAppDelegate">
-            <connections>
-                <outlet property="_spectrumView" destination="n6B-vi-34S" id="dkc-Rm-1SB"/>
-                <outlet property="_window" destination="371" id="i1j-F5-hwg"/>
-                <outlet property="spectrumView" destination="n6B-vi-34S" id="bsY-Po-YqY"/>
-                <outlet property="window" destination="371" id="532"/>
-            </connections>
-        </customObject>
+        <customObject id="494" customClass="AudioSpectrumAppDelegate"/>
         <customObject id="420" customClass="NSFontManager"/>
         <customObject id="led-Nh-ByF" customClass="SpectrumAnalyzer"/>
     </objects>
