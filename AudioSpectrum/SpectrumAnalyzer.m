@@ -188,16 +188,4 @@ static Float32 bandwidthForBands[] = {
     }
 }
 
-#pragma mark Class method
-
-+ (SpectrumAnalyzer *)sharedInstance
-{
-    static SpectrumAnalyzer *instance;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        instance = [[SpectrumAnalyzer alloc] init];
-    });
-    return instance;
-}
-
 @end

@@ -7,6 +7,12 @@
 #import "AudioInputHandler.h"
 #import "AudioRingBuffer.h"
 
+@interface SpectrumView ()
+{
+    IBOutlet SpectrumAnalyzer *_analyzer;
+}
+@end
+
 #pragma mark Local functions
 
 #define MIN_DB (-60.0f)
@@ -31,9 +37,8 @@ static float ConvertLogScale(float x)
     NSRectFill(dirtyRect);
     
     // Update the spectrum.
-    SpectrumAnalyzer *analyzer = [SpectrumAnalyzer sharedInstance];
     AudioInputHandler *audioInput = [AudioInputHandler sharedInstance];
-    [analyzer processAudioInput:audioInput];
+    [_analyzer processAudioInput:audioInput];
     
     // Draw horizontal lines.
     {
@@ -52,7 +57,7 @@ static float ConvertLogScale(float x)
     
     // Draw the input waveform graph.
     {
-        int waveformLength = (int)analyzer.pointNumber;
+        int waveformLength = (int)_analyzer.pointNumber;
         float waveform[waveformLength];
         [audioInput.ringBuffers.firstObject copyTo:waveform length:waveformLength];
         
@@ -106,8 +111,8 @@ static float ConvertLogScale(float x)
 
     // Draw the octave band graph.
     {
-        const float *bandLevels = analyzer.bandLevels;
-        int bandCount = (int)[analyzer countBands];
+        const float *bandLevels = _analyzer.bandLevels;
+        int bandCount = (int)[_analyzer countBands];
         
         float barInterval = size.width / bandCount;
         float barWidth = 0.5f * barInterval;
@@ -123,8 +128,8 @@ static float ConvertLogScale(float x)
     
     // Draw the spectrum graph.
     {
-        const float *spectrum = analyzer.spectrum;
-        int spectrumCount = (int)analyzer.pointNumber / 2;
+        const float *spectrum = _analyzer.spectrum;
+        int spectrumCount = (int)_analyzer.pointNumber / 2;
         
         NSBezierPath *path = [NSBezierPath bezierPath];
         float xScale = size.width / log10f(spectrumCount - 1);

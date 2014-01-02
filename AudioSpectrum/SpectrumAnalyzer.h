@@ -44,7 +44,4 @@
 - (void)processAudioInput:(AudioInputHandler *)handler channel:(NSUInteger)channel;
 - (void)processAudioInput:(AudioInputHandler *)handler channel1:(NSUInteger)channel1 channel2:(NSUInteger)channel2;
 
-// Retrieve the shared instance.
-+ (SpectrumAnalyzer *)sharedInstance;
-
 @end

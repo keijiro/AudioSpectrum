@@ -100,7 +100,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="266" y="186" width="738" height="473"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="900"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="878"/>
             <view key="contentView" id="372">
                 <rect key="frame" x="0.0" y="0.0" width="738" height="473"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -108,6 +108,9 @@
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="n6B-vi-34S" customClass="SpectrumView">
                         <rect key="frame" x="0.0" y="0.0" width="738" height="473"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <connections>
+                            <outlet property="_analyzer" destination="led-Nh-ByF" id="raE-Rw-ilk"/>
+                        </connections>
                     </customView>
                 </subviews>
                 <constraints>
@@ -127,21 +130,21 @@
                         <popUpButton key="view" verticalHuggingPriority="750" id="N9s-ew-hlW">
                             <rect key="frame" x="0.0" y="14" width="153" height="26"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                            <popUpButtonCell key="cell" type="push" title="8192" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="ja9-dB-17r" id="WaD-Qd-4sH">
+                            <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="WaD-Qd-4sH">
                                 <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="menu"/>
                                 <menu key="menu" title="OtherViews" id="MRb-xn-P97">
                                     <items>
-                                        <menuItem title="512" id="F4J-eM-ioM"/>
-                                        <menuItem title="1024" id="3tI-Ld-ESN"/>
-                                        <menuItem title="2048" id="a8I-B0-I9Q"/>
-                                        <menuItem title="4096" id="jlz-Hm-nfl"/>
-                                        <menuItem title="8192" state="on" id="ja9-dB-17r"/>
+                                        <menuItem title="512" tag="512" id="F4J-eM-ioM"/>
+                                        <menuItem title="1024" tag="1024" id="3tI-Ld-ESN"/>
+                                        <menuItem title="2048" tag="2048" id="a8I-B0-I9Q"/>
+                                        <menuItem title="4096" tag="4096" id="jlz-Hm-nfl"/>
+                                        <menuItem title="8192" tag="8192" id="ja9-dB-17r"/>
                                     </items>
                                 </menu>
                             </popUpButtonCell>
                             <connections>
-                                <action selector="updateConfiguration:" target="494" id="FEW-TL-y0P"/>
+                                <binding destination="led-Nh-ByF" name="selectedTag" keyPath="self.pointNumber" id="7UH-Iw-s4O"/>
                             </connections>
                         </popUpButton>
                     </toolbarItem>
@@ -167,7 +170,7 @@
                                 </menu>
                             </popUpButtonCell>
                             <connections>
-                                <action selector="updateConfiguration:" target="494" id="CL8-n0-jkE"/>
+                                <binding destination="led-Nh-ByF" name="selectedIndex" keyPath="self.bandType" id="amp-XB-jiy"/>
                             </connections>
                         </popUpButton>
                     </toolbarItem>
@@ -181,16 +184,13 @@
         </window>
         <customObject id="494" customClass="AudioSpectrumAppDelegate">
             <connections>
-                <outlet property="_bandTypePopUp" destination="dnj-oj-JLC" id="wB5-Ut-TkD"/>
-                <outlet property="_fftPointPopUp" destination="N9s-ew-hlW" id="um9-Ts-ZvT"/>
                 <outlet property="_spectrumView" destination="n6B-vi-34S" id="dkc-Rm-1SB"/>
                 <outlet property="_window" destination="371" id="i1j-F5-hwg"/>
-                <outlet property="bandTypePopUp" destination="dnj-oj-JLC" id="cXc-0s-GXq"/>
-                <outlet property="fftPointPopUp" destination="N9s-ew-hlW" id="vGF-XD-WfS"/>
                 <outlet property="spectrumView" destination="n6B-vi-34S" id="bsY-Po-YqY"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <customObject id="led-Nh-ByF" customClass="SpectrumAnalyzer"/>
     </objects>
 </document>

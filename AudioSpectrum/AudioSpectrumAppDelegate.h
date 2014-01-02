@@ -6,6 +6,4 @@
 
 @interface AudioSpectrumAppDelegate : NSObject <NSApplicationDelegate>
 
-- (IBAction)updateConfiguration:(id)sender;
-
 @end
