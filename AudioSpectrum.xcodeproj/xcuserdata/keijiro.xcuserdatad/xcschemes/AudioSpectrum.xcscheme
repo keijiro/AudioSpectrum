@@ -28,16 +28,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "0FA4597C180D750B004004D4"
-               BuildableName = "AudioSpectrumTests.xctest"
-               BlueprintName = "AudioSpectrumTests"
-               ReferencedContainer = "container:AudioSpectrum.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference

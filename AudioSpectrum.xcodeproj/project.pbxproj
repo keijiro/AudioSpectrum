@@ -18,24 +18,10 @@
 		0FA45973180D750B004004D4 /* AudioSpectrumAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45972180D750B004004D4 /* AudioSpectrumAppDelegate.m */; };
 		0FA45976180D750B004004D4 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0FA45974180D750B004004D4 /* MainMenu.xib */; };
 		0FA45978180D750B004004D4 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0FA45977180D750B004004D4 /* Images.xcassets */; };
-		0FA4597F180D750B004004D4 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA4597E180D750B004004D4 /* XCTest.framework */; };
-		0FA45980180D750B004004D4 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FA4595F180D750B004004D4 /* Cocoa.framework */; };
-		0FA45988180D750B004004D4 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0FA45986180D750B004004D4 /* InfoPlist.strings */; };
-		0FA4598A180D750B004004D4 /* AudioSpectrumTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45989180D750B004004D4 /* AudioSpectrumTests.m */; };
 		0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45994180DEBCF004004D4 /* SpectrumView.m */; };
 		0FC18D1D181544E900D4718E /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC18D1C181544E900D4718E /* AudioUnit.framework */; };
 		0FC18D1F181548BC00D4718E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC18D1E181548BC00D4718E /* CoreAudio.framework */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		0FA45981180D750B004004D4 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0FA45954180D750B004004D4 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 0FA4595B180D750B004004D4;
-			remoteInfo = AudioSpectrum;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0F073775180E5D9E00130697 /* AudioInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AudioInputHandler.h; sourceTree = "<group>"; };
@@ -59,11 +45,7 @@
 		0FA45972180D750B004004D4 /* AudioSpectrumAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSpectrumAppDelegate.m; sourceTree = "<group>"; };
 		0FA45975180D750B004004D4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		0FA45977180D750B004004D4 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		0FA4597D180D750B004004D4 /* AudioSpectrumTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AudioSpectrumTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0FA4597E180D750B004004D4 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		0FA45985180D750B004004D4 /* AudioSpectrumTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "AudioSpectrumTests-Info.plist"; sourceTree = "<group>"; };
-		0FA45987180D750B004004D4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		0FA45989180D750B004004D4 /* AudioSpectrumTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AudioSpectrumTests.m; sourceTree = "<group>"; };
 		0FA45993180DEBCF004004D4 /* SpectrumView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SpectrumView.h; sourceTree = "<group>"; };
 		0FA45994180DEBCF004004D4 /* SpectrumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumView.m; sourceTree = "<group>"; };
 		0FC18D1C181544E900D4718E /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
@@ -82,15 +64,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0FA4597A180D750B004004D4 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0FA45980180D750B004004D4 /* Cocoa.framework in Frameworks */,
-				0FA4597F180D750B004004D4 /* XCTest.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -98,7 +71,6 @@
 			isa = PBXGroup;
 			children = (
 				0FA45965180D750B004004D4 /* AudioSpectrum */,
-				0FA45983180D750B004004D4 /* AudioSpectrumTests */,
 				0FA4595E180D750B004004D4 /* Frameworks */,
 				0FA4595D180D750B004004D4 /* Products */,
 			);
@@ -108,7 +80,6 @@
 			isa = PBXGroup;
 			children = (
 				0FA4595C180D750B004004D4 /* AudioSpectrum.app */,
-				0FA4597D180D750B004004D4 /* AudioSpectrumTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -168,24 +139,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		0FA45983180D750B004004D4 /* AudioSpectrumTests */ = {
-			isa = PBXGroup;
-			children = (
-				0FA45989180D750B004004D4 /* AudioSpectrumTests.m */,
-				0FA45984180D750B004004D4 /* Supporting Files */,
-			);
-			path = AudioSpectrumTests;
-			sourceTree = "<group>";
-		};
-		0FA45984180D750B004004D4 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				0FA45985180D750B004004D4 /* AudioSpectrumTests-Info.plist */,
-				0FA45986180D750B004004D4 /* InfoPlist.strings */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -206,24 +159,6 @@
 			productReference = 0FA4595C180D750B004004D4 /* AudioSpectrum.app */;
 			productType = "com.apple.product-type.application";
 		};
-		0FA4597C180D750B004004D4 /* AudioSpectrumTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0FA45990180D750B004004D4 /* Build configuration list for PBXNativeTarget "AudioSpectrumTests" */;
-			buildPhases = (
-				0FA45979180D750B004004D4 /* Sources */,
-				0FA4597A180D750B004004D4 /* Frameworks */,
-				0FA4597B180D750B004004D4 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				0FA45982180D750B004004D4 /* PBXTargetDependency */,
-			);
-			name = AudioSpectrumTests;
-			productName = AudioSpectrumTests;
-			productReference = 0FA4597D180D750B004004D4 /* AudioSpectrumTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -233,11 +168,6 @@
 				CLASSPREFIX = AudioSpectrum;
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Keijiro Takahashi";
-				TargetAttributes = {
-					0FA4597C180D750B004004D4 = {
-						TestTargetID = 0FA4595B180D750B004004D4;
-					};
-				};
 			};
 			buildConfigurationList = 0FA45957180D750B004004D4 /* Build configuration list for PBXProject "AudioSpectrum" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -253,7 +183,6 @@
 			projectRoot = "";
 			targets = (
 				0FA4595B180D750B004004D4 /* AudioSpectrum */,
-				0FA4597C180D750B004004D4 /* AudioSpectrumTests */,
 			);
 		};
 /* End PBXProject section */
@@ -267,14 +196,6 @@
 				0FA45978180D750B004004D4 /* Images.xcassets in Resources */,
 				0FA45970180D750B004004D4 /* Credits.rtf in Resources */,
 				0FA45976180D750B004004D4 /* MainMenu.xib in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		0FA4597B180D750B004004D4 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0FA45988180D750B004004D4 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -294,23 +215,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		0FA45979180D750B004004D4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0FA4598A180D750B004004D4 /* AudioSpectrumTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		0FA45982180D750B004004D4 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 0FA4595B180D750B004004D4 /* AudioSpectrum */;
-			targetProxy = 0FA45981180D750B004004D4 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		0FA45968180D750B004004D4 /* InfoPlist.strings */ = {
@@ -335,14 +240,6 @@
 				0FA45975180D750B004004D4 /* Base */,
 			);
 			name = MainMenu.xib;
-			sourceTree = "<group>";
-		};
-		0FA45986180D750B004004D4 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				0FA45987180D750B004004D4 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -442,46 +339,6 @@
 			};
 			name = Release;
 		};
-		0FA45991180D750B004004D4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/AudioSpectrum.app/Contents/MacOS/AudioSpectrum";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "AudioSpectrum/AudioSpectrum-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "AudioSpectrumTests/AudioSpectrumTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		0FA45992180D750B004004D4 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/AudioSpectrum.app/Contents/MacOS/AudioSpectrum";
-				COMBINE_HIDPI_IMAGES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-					"$(inherited)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "AudioSpectrum/AudioSpectrum-Prefix.pch";
-				INFOPLIST_FILE = "AudioSpectrumTests/AudioSpectrumTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -499,15 +356,6 @@
 			buildConfigurations = (
 				0FA4598E180D750B004004D4 /* Debug */,
 				0FA4598F180D750B004004D4 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		0FA45990180D750B004004D4 /* Build configuration list for PBXNativeTarget "AudioSpectrumTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				0FA45991180D750B004004D4 /* Debug */,
-				0FA45992180D750B004004D4 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
