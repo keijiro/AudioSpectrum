@@ -188,7 +188,7 @@ NSUInteger CountBands(NSUInteger bandType)
     vDSP_vmul(_dftBuffer.realp, 1, _window, 2, _dftBuffer.realp, 1, length);
     vDSP_vmul(_dftBuffer.imagp, 1, _window + 1, 2, _dftBuffer.imagp, 1, length);
 
-    // FFT.
+    // DFT.
     vDSP_DFT_Execute(_dftSetup, _dftBuffer.realp, _dftBuffer.imagp, _dftBuffer.realp, _dftBuffer.imagp);
     
     // Zero out the nyquist value.
