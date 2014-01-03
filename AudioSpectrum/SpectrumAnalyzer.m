@@ -149,7 +149,7 @@ NSUInteger CountBands(NSUInteger bandType)
             [[input.ringBuffers objectAtIndex:i] vectorAverageWith:_inputBuffer index:i length:_pointNumber];
         
         // Fourier transform.
-        [self calculateWithInputBuffer:input.sampleRate];
+        [self processWaveform:_inputBuffer samleRate:input.sampleRate];
     }
     else
     {
@@ -163,7 +163,7 @@ NSUInteger CountBands(NSUInteger bandType)
     [[input.ringBuffers objectAtIndex:channel] copyTo:_inputBuffer length:_pointNumber];
     
     // Fourier transform.
-    [self calculateWithInputBuffer:input.sampleRate];
+    [self processWaveform:_inputBuffer samleRate:input.sampleRate];
 }
 
 - (void)processAudioInput:(AudioInputHandler *)input channel1:(NSUInteger)channel1 channel2:(NSUInteger)channel2
@@ -173,16 +173,16 @@ NSUInteger CountBands(NSUInteger bandType)
     [[input.ringBuffers objectAtIndex:channel2] vectorAverageWith:_inputBuffer index:1 length:_pointNumber];
     
     // Fourier transform.
-    [self calculateWithInputBuffer:input.sampleRate];
+    [self processWaveform:_inputBuffer samleRate:input.sampleRate];
 }
 
-- (void)calculateWithInputBuffer:(float)sampleRate
+- (void)processWaveform:(const Float32 *)waveform samleRate:(Float32)sampleRate
 {
     NSUInteger length = _pointNumber / 2;
     
     // Split the waveform.
     DSPSplitComplex dest = { _dftBuffer.realp, _dftBuffer.imagp };
-    vDSP_ctoz((const DSPComplex*)_inputBuffer, 2, &dest, 1, length);
+    vDSP_ctoz((const DSPComplex*)waveform, 2, &dest, 1, length);
     
     // Apply the window function.
     vDSP_vmul(_dftBuffer.realp, 1, _window, 2, _dftBuffer.realp, 1, length);

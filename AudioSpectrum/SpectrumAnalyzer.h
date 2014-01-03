@@ -59,4 +59,7 @@ typedef const struct SpectrumData *SpectrumDataRef;
 - (void)processAudioInput:(AudioInputHandler *)handler channel:(NSUInteger)channel;
 - (void)processAudioInput:(AudioInputHandler *)handler channel1:(NSUInteger)channel1 channel2:(NSUInteger)channel2;
 
+// Process the raw waveform data (the length of the waveform must equal to pointNumber).
+- (void)processWaveform:(const Float32 *)waveform samleRate:(Float32)sampleRate;
+
 @end
