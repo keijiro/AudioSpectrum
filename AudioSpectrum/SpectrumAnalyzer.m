@@ -7,7 +7,6 @@
 #import "AudioRingBuffer.h"
 
 // Octave band type definition
-
 static Float32 middleFrequenciesForBands[][32] = {
     { 125.0f, 500, 1000, 2000 },
     { 250.0f, 400, 600, 800 },
@@ -26,66 +25,71 @@ static Float32 bandwidthForBands[] = {
     1.12246204831f  // 2^(1/6)
 };
 
-@implementation SpectrumAnalyzer
+NSUInteger CountBands(NSUInteger bandType)
+{
+    for (NSUInteger i = 0;; i++)
+        if (middleFrequenciesForBands[bandType][i] == 0) return i;
+}
 
-#if ! __has_feature(objc_arc)
-@synthesize pointNumber = _pointNumber;
-@synthesize bandType = _bandType;
-#endif
+#pragma mark
+
+@implementation SpectrumAnalyzer
 
 #pragma mark Constructor / Destructor
 
 - (id)init
 {
-    self = [super init];
-    if (self) {
+    if (self = [super init])
+    {
         self.pointNumber = 1024;
-        self.bandType = 3;
+        self.octaveBandType = OctaveBandTypeStandard;
     }
     return self;
 }
 
 - (void)dealloc
 {
-    self.pointNumber = 0;
     vDSP_DFT_DestroySetup(_dftSetup);
+    
+    free(_dftBuffer.realp);
+    free(_dftBuffer.imagp);
+    free(_inputBuffer);
+    free(_window);
+    free(_rawSpectrum);
+    free(_octaveBandSpectrum);
+    
 #if ! __has_feature(objc_arc)
     [super dealloc];
 #endif
 }
 
-#pragma mark Custom accessors
+#pragma mark Custom Property Accessors
 
-- (const Float32 *)spectrum
+- (NSUInteger)pointNumber
 {
-    return _spectrum;
-}
-
-- (const Float32 *)bandLevels
-{
-    return _bandLevels;
+    return _pointNumber;
 }
 
 - (void)setPointNumber:(NSUInteger)number
 {
-    // No need to update.
     if (_pointNumber == number) return;
     
-    // Free the objects if already initialized.
-    if (_pointNumber != 0) {
+    // Free the related objects if already initialized.
+    if (_pointNumber != 0)
+    {
         free(_dftBuffer.realp);
         free(_dftBuffer.imagp);
         free(_inputBuffer);
         free(_window);
-        free(_spectrum);
+        free(_rawSpectrum);
     }
-
+    
     // Update the number.
     _pointNumber = number;
-    _logPointNumber = log2(number);
     
-    if (number > 0) {
-        // Allocate the objects and the arrays.
+    if (number > 0)
+    {
+        // Reallocate the related objects.
         _dftSetup = vDSP_DFT_zrop_CreateSetup(_dftSetup, _pointNumber, vDSP_DFT_FORWARD);
         
         _dftBuffer.realp = calloc(_pointNumber / 2, sizeof(Float32));
@@ -99,25 +103,66 @@ static Float32 bandwidthForBands[] = {
         Float32 normFactor = 2.0f / number;
         vDSP_vsmul(_window, 1, &normFactor, _window, 1, number);
         
-        _spectrum = calloc(_pointNumber / 2, sizeof(Float32));
+        _rawSpectrum = calloc(sizeof(SpectrumData) + sizeof(Float32) * _pointNumber / 2, 1);
+        _rawSpectrum->length = _pointNumber / 2;
     }
 }
 
-- (NSUInteger)countBands
+- (NSUInteger)octaveBandType
 {
-    for (NSUInteger i = 0;; i++) {
-        if (middleFrequenciesForBands[_bandType][i] == 0) return i;
-    }
+    return _octaveBandType;
 }
 
-#pragma mark Instance method
+- (void)setOctaveBandType:(NSUInteger)number
+{
+    if (_octaveBandType == number) return;
+    
+    // Update the number.
+    _octaveBandType = number;
+    
+    // Reallocate the buffer;
+    if (_octaveBandSpectrum) free(_octaveBandSpectrum);
+    NSUInteger bandCount = CountBands(_octaveBandType);
+    _octaveBandSpectrum = calloc(sizeof(SpectrumData) + sizeof(Float32) * bandCount, 1);
+    _octaveBandSpectrum->length = bandCount;
+}
+
+- (SpectrumDataRef)rawSpectrumData
+{
+    return _rawSpectrum;
+}
+
+- (SpectrumDataRef)octaveBandSpectrumData
+{
+    return _octaveBandSpectrum;
+}
+
+#pragma mark Audio Processing Methods
+
+- (void)processAudioInput:(AudioInputHandler *)input allChannels:(BOOL)allChannels
+{
+    if (allChannels)
+    {
+        // Retrieve waveforms from channels and average these.
+        [input.ringBuffers.firstObject copyTo:_inputBuffer length:_pointNumber];
+        for (NSUInteger i = 1; i < input.ringBuffers.count; i++)
+            [[input.ringBuffers objectAtIndex:i] vectorAverageWith:_inputBuffer index:i length:_pointNumber];
+        
+        // Fourier transform.
+        [self calculateWithInputBuffer:input.sampleRate];
+    }
+    else
+    {
+        [self processAudioInput:input channel:0];
+    }
+}
 
 - (void)processAudioInput:(AudioInputHandler *)input channel:(NSUInteger)channel
 {
     // Retrieve a waveform from the specified channel.
     [[input.ringBuffers objectAtIndex:channel] copyTo:_inputBuffer length:_pointNumber];
     
-    // Do FFT.
+    // Fourier transform.
     [self calculateWithInputBuffer:input.sampleRate];
 }
 
@@ -127,19 +172,7 @@ static Float32 bandwidthForBands[] = {
     [[input.ringBuffers objectAtIndex:channel1] copyTo:_inputBuffer length:_pointNumber];
     [[input.ringBuffers objectAtIndex:channel2] vectorAverageWith:_inputBuffer index:1 length:_pointNumber];
     
-    // Do FFT.
-    [self calculateWithInputBuffer:input.sampleRate];
-}
-
-- (void)processAudioInput:(AudioInputHandler *)input
-{
-    // Retrieve waveforms from channels and average these.
-    [input.ringBuffers.firstObject copyTo:_inputBuffer length:_pointNumber];
-    for (NSUInteger i = 1; i < input.ringBuffers.count; i++) {
-        [[input.ringBuffers objectAtIndex:i] vectorAverageWith:_inputBuffer index:i length:_pointNumber];
-    }
-    
-    // Do FFT.
+    // Fourier transform.
     [self calculateWithInputBuffer:input.sampleRate];
 }
 
@@ -162,35 +195,36 @@ static Float32 bandwidthForBands[] = {
     _dftBuffer.imagp[0] = 0;
     
     // Calculate power spectrum.
-    vDSP_zvmags(&_dftBuffer, 1, _spectrum, 1, length);
+    Float32 *rawSpectrum = _rawSpectrum->data;
+    vDSP_zvmags(&_dftBuffer, 1, rawSpectrum, 1, length);
     
     // Add -128db offset to avoid log(0).
     float kZeroOffset = 1.5849e-13;
-    vDSP_vsadd(_spectrum, 1, &kZeroOffset, _spectrum, 1, length);
+    vDSP_vsadd(rawSpectrum, 1, &kZeroOffset, rawSpectrum, 1, length);
 
     // Convert power to decibel.
     float kZeroDB = 0.70710678118f; // 1/sqrt(2)
-    vDSP_vdbcon(_spectrum, 1, &kZeroDB, _spectrum, 1, length, 0);
+    vDSP_vdbcon(rawSpectrum, 1, &kZeroDB, rawSpectrum, 1, length, 0);
 
     // Calculate the band levels.
-    NSUInteger bandCount = [self countBands];
+    NSUInteger bandCount = _octaveBandSpectrum->length;
     
-    const Float32 *middleFreqs = middleFrequenciesForBands[_bandType];
-    Float32 bandWidth = bandwidthForBands[_bandType];
+    const Float32 *middleFreqs = middleFrequenciesForBands[_octaveBandType];
+    Float32 bandWidth = bandwidthForBands[_octaveBandType];
     
     Float32 freqToIndexCoeff = _pointNumber / sampleRate;
     int maxIndex = (int)_pointNumber / 2 - 1;
     
-    for (NSUInteger band = 0; band < bandCount; band++) {
+    for (NSUInteger band = 0; band < bandCount; band++)
+    {
         int idxlo = MIN((int)floorf(middleFreqs[band] / bandWidth * freqToIndexCoeff), maxIndex);
         int idxhi = MIN((int)floorf(middleFreqs[band] * bandWidth * freqToIndexCoeff), maxIndex);
         
-        Float32 maxLevel = _spectrum[idxlo];
-        for (int i = idxlo + 1; i <= idxhi; i++) {
-            maxLevel = MAX(maxLevel, _spectrum[i]);
-        }
+        Float32 maxLevel = rawSpectrum[idxlo];
+        for (int i = idxlo + 1; i <= idxhi; i++)
+            maxLevel = MAX(maxLevel, rawSpectrum[i]);
         
-        _bandLevels[band] = maxLevel;
+        _octaveBandSpectrum->data[band] = maxLevel;
     }
 }
 

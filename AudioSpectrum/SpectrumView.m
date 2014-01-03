@@ -51,7 +51,7 @@ static float ConvertLogScale(float x)
     
     // Update the spectrum.
     AudioInputHandler *audioInput = AudioInputHandler.sharedInstance;
-    [_analyzer processAudioInput:audioInput];
+    [_analyzer processAudioInput:audioInput allChannels:YES];
     
     // Draw horizontal lines.
     {
@@ -124,32 +124,30 @@ static float ConvertLogScale(float x)
 
     // Draw the octave band graph.
     {
-        const float *bandLevels = _analyzer.bandLevels;
-        NSUInteger bandCount = [_analyzer countBands];
+        SpectrumDataRef spectrum = _analyzer.octaveBandSpectrumData;
         
-        float barInterval = size.width / bandCount;
+        float barInterval = size.width / spectrum->length;
         float barWidth = 0.5f * barInterval;
         
         [[NSColor colorWithWhite:0.8f alpha:1.0f] setFill];
         
-        for (NSUInteger i = 0; i < bandCount; i++) {
+        for (NSUInteger i = 0; i < spectrum->length; i++) {
             float x = (0.5f + i)  * barInterval;
-            float y = ConvertLogScale(bandLevels[i]) * size.height;
+            float y = ConvertLogScale(spectrum->data[i]) * size.height;
             NSRectFill(NSMakeRect(x - 0.5f * barWidth, 0, barWidth, y));
         }
     }
     
     // Draw the spectrum graph.
     {
-        const float *spectrum = _analyzer.spectrum;
-        NSUInteger spectrumCount = _analyzer.pointNumber / 2;
+        SpectrumDataRef spectrum = _analyzer.rawSpectrumData;
         
         NSBezierPath *path = [NSBezierPath bezierPath];
-        float xScale = size.width / log10f(spectrumCount - 1);
+        float xScale = size.width / log10f(spectrum->length - 1);
 
-        for (NSUInteger i = 1; i < spectrumCount; i++) {
+        for (NSUInteger i = 1; i < spectrum->length; i++) {
             float x = log10f(i) * xScale;
-            float y = ConvertLogScale(spectrum[i]) * size.height;
+            float y = ConvertLogScale(spectrum->data[i]) * size.height;
             if (i == 1) {
                 [path moveToPoint:NSMakePoint(x, y)];
             } else {

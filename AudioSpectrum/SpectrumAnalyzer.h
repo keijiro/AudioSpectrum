@@ -7,15 +7,33 @@
 
 @class AudioInputHandler;
 
+// Octave band type definition.
+typedef NS_ENUM(NSUInteger, OctaveBandType)
+{
+    OctaveBandType4,
+    OctaveBandTypeVisual,
+    OctaveBandType8,
+    OctaveBandTypeStandard,
+    OctaveBandType24,
+    OctaveBandType31
+};
+
+// Data structure for spectrum data.
+struct SpectrumData
+{
+    NSUInteger length;
+    Float32 data[0];
+};
+typedef struct SpectrumData SpectrumData;
+typedef const struct SpectrumData *SpectrumDataRef;
+
+// Spectrum analyzer class interface.
 @interface SpectrumAnalyzer : NSObject
 {
 @private
-    // FFT data point number.
+    // Configurations.
     NSUInteger _pointNumber;
-    NSUInteger _logPointNumber;
-    
-    // Octave band type.
-    NSUInteger _bandType;
+    NSUInteger _octaveBandType;
     
     // DFT objects.
     vDSP_DFT_Setup _dftSetup;
@@ -24,23 +42,20 @@
     Float32 *_window;
     
     // Spectrum data.
-    Float32 *_spectrum;
-    Float32 _bandLevels[32];
+    SpectrumData *_rawSpectrum;
+    SpectrumData *_octaveBandSpectrum;
 }
 
-// Configuration.
+// Configurations.
 @property (nonatomic, assign) NSUInteger pointNumber;
-@property (nonatomic, assign) NSUInteger bandType;
+@property (nonatomic, assign) NSUInteger octaveBandType;
 
 // Spectrum data accessors.
-@property (nonatomic, readonly) const Float32 *spectrum;
-@property (nonatomic, readonly) const Float32 *bandLevels;
-
-// Returns the number of the octave bands.
-- (NSUInteger)countBands;
+@property (nonatomic, readonly) SpectrumDataRef rawSpectrumData;
+@property (nonatomic, readonly) SpectrumDataRef octaveBandSpectrumData;
 
 // Process the audio input.
-- (void)processAudioInput:(AudioInputHandler *)handler;
+- (void)processAudioInput:(AudioInputHandler *)handler allChannels:(BOOL)allChannels;
 - (void)processAudioInput:(AudioInputHandler *)handler channel:(NSUInteger)channel;
 - (void)processAudioInput:(AudioInputHandler *)handler channel1:(NSUInteger)channel1 channel2:(NSUInteger)channel2;
 

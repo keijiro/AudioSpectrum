@@ -170,7 +170,7 @@
                                 </menu>
                             </popUpButtonCell>
                             <connections>
-                                <binding destination="led-Nh-ByF" name="selectedIndex" keyPath="self.bandType" id="amp-XB-jiy"/>
+                                <binding destination="led-Nh-ByF" name="selectedIndex" keyPath="self.octaveBandType" id="SXC-H3-bVk"/>
                             </connections>
                         </popUpButton>
                     </toolbarItem>
