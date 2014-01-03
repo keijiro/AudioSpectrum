@@ -132,13 +132,18 @@ static inline void FloatCopy(const Float32 *source, Float32 *destination, NSUInt
         float rms;
         vDSP_rmsqv(_samples + offset - length, 1, &rms, length);
         return rms;
-    } else {
+    } else if (offset > 0) {
         // Process the tail and the head of the ring buffer.
         float msq1, msq2;
         NSUInteger tail = length - offset;
         vDSP_measqv(_samples + kBufferSize - tail, 1, &msq1, tail);
         vDSP_measqv(_samples, 1, &msq2, offset);
         return sqrtf((msq1 * tail + msq2 * offset) / length);
+    } else {
+        // Process the tail of the ring buffer.
+        float rms;
+        vDSP_rmsqv(_samples + kBufferSize - length, 1, &rms, length);
+        return rms;
     }
 }
 
