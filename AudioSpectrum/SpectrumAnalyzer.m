@@ -176,6 +176,16 @@ NSUInteger CountBands(NSUInteger bandType)
     [self processWaveform:_inputBuffer samleRate:input.sampleRate];
 }
 
+- (void)processWaveform:(const Float32 *)waveform1 withAdding:(const Float32 *)waveform2 samleRate:(Float32)sampleRate
+{
+    // Add two waveforms.
+    float scalar = 0.5f;
+    vDSP_vasm(waveform1, 1, waveform2, 1, &scalar, _inputBuffer, 1, _pointNumber);
+    
+    // Fourier transform.
+    [self processWaveform:_inputBuffer samleRate:sampleRate];
+}
+
 - (void)processWaveform:(const Float32 *)waveform samleRate:(Float32)sampleRate
 {
     NSUInteger length = _pointNumber / 2;

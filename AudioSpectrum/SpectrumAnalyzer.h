@@ -61,5 +61,6 @@ typedef const struct SpectrumData *SpectrumDataRef;
 
 // Process the raw waveform data (the length of the waveform must equal to pointNumber).
 - (void)processWaveform:(const Float32 *)waveform samleRate:(Float32)sampleRate;
+- (void)processWaveform:(const Float32 *)waveform1 withAdding:(const Float32 *)waveform2 samleRate:(Float32)sampleRate;
 
 @end
