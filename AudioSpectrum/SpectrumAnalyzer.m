@@ -219,12 +219,7 @@ NSUInteger CountBands(NSUInteger bandType)
     {
         int idxlo = MIN((int)floorf(middleFreqs[band] / bandWidth * freqToIndexCoeff), maxIndex);
         int idxhi = MIN((int)floorf(middleFreqs[band] * bandWidth * freqToIndexCoeff), maxIndex);
-        
-        Float32 maxLevel = rawSpectrum[idxlo];
-        for (int i = idxlo + 1; i <= idxhi; i++)
-            maxLevel = MAX(maxLevel, rawSpectrum[i]);
-        
-        _octaveBandSpectrum->data[band] = maxLevel;
+        vDSP_maxv(rawSpectrum + idxlo, 1, &_octaveBandSpectrum->data[band], idxhi - idxlo + 1);
     }
 }
 
