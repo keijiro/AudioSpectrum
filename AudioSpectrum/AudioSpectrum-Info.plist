@@ -28,6 +28,8 @@
 	<string>Copyright © 2013 Keijiro Takahashi. All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>need mic permission</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
