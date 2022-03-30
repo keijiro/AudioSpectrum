@@ -21,6 +21,7 @@
 		0FA45995180DEBCF004004D4 /* SpectrumView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0FA45994180DEBCF004004D4 /* SpectrumView.m */; };
 		0FC18D1D181544E900D4718E /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC18D1C181544E900D4718E /* AudioUnit.framework */; };
 		0FC18D1F181548BC00D4718E /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0FC18D1E181548BC00D4718E /* CoreAudio.framework */; };
+		6A3E358527F3DAED00182F9B /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A3E358427F3DAED00182F9B /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -50,6 +51,7 @@
 		0FA45994180DEBCF004004D4 /* SpectrumView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SpectrumView.m; sourceTree = "<group>"; };
 		0FC18D1C181544E900D4718E /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		0FC18D1E181548BC00D4718E /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		6A3E358427F3DAED00182F9B /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 			files = (
 				0FC18D1F181548BC00D4718E /* CoreAudio.framework in Frameworks */,
 				0FC18D1D181544E900D4718E /* AudioUnit.framework in Frameworks */,
+				6A3E358527F3DAED00182F9B /* AVFoundation.framework in Frameworks */,
 				0F3574B6180E8E9000836BC3 /* Accelerate.framework in Frameworks */,
 				0FA45960180D750B004004D4 /* Cocoa.framework in Frameworks */,
 			);
@@ -87,6 +90,7 @@
 		0FA4595E180D750B004004D4 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6A3E358427F3DAED00182F9B /* AVFoundation.framework */,
 				0FC18D1E181548BC00D4718E /* CoreAudio.framework */,
 				0FC18D1C181544E900D4718E /* AudioUnit.framework */,
 				0F3574B5180E8E9000836BC3 /* Accelerate.framework */,
@@ -174,6 +178,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
